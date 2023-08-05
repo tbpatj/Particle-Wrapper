@@ -84,8 +84,6 @@ export const mapParticlesOntoPoints = (particles: Particle[], points: CanvasPoin
         const randVelX = Math.random() * 2 - 1;
         const randVelY = Math.random() * 2 - 1;
         particles[pI].dest = new Vector2D(point.pos.x + Math.random() * 2 - 1, point.pos.y + Math.random() * 2 - 1);
-        // particles[pI].vel = particles[pI].vel.selfAdd(new Vector2D(randVelX, randVelY));
-        particles[pI].resistence = Math.random() * 0.05 + 0.8;
         particles[pI].toColor = new ColorRGB(point.color.toObject());
         particles[pI].size = particleBaseSize + Math.random() * 3;
       } else {

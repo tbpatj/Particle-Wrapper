@@ -6,6 +6,7 @@ interface ParticleConstructor {
   y: number;
   destX?: number;
   destY?: number;
+  speed?: number;
   xVel?: number;
   yVel?: number;
   resistence?: number;
@@ -14,6 +15,9 @@ interface ParticleConstructor {
   size?: number;
   renderCallback?: ParticleRenderCallback;
 }
+
+let dx = 0;
+let dy = 0;
 
 type ParticleRenderCallback = (ctx: CanvasRenderingContext2D, pos: Vector2D, color: ColorRGB, size: number) => void;
 
@@ -24,15 +28,17 @@ class Particle {
   color: ColorRGB;
   toColor: ColorRGB | undefined;
   size: number;
+  speed: number;
   resistence: number;
   renderCallback: ParticleRenderCallback | undefined;
-  constructor({ x, y, destX, destY, xVel = 0, yVel = 0, color = new ColorRGB({}), renderCallback, size = 5, resistence = 0.97 }: ParticleConstructor) {
+  constructor({ x, y, destX, destY, xVel = 0, yVel = 0, color = new ColorRGB({}), renderCallback, size = 5, resistence = 0.87, speed = 0.01 }: ParticleConstructor) {
     this.pos = new Vector2D(x, y);
     this.vel = new Vector2D(xVel, yVel);
     if (destX && destY) this.dest = new Vector2D(destX, destY);
     else this.dest = undefined;
     this.toColor = undefined;
     this.color = color;
+    this.speed = speed;
     this.size = size;
     this.resistence = resistence;
     //perhaps this isn't the most efficient way to store this data
@@ -47,9 +53,14 @@ class Particle {
   updateParticle = () => {
     this.pos.selfAdd(this.vel);
     if (this.dest) {
-      const destVel = this.dest.sub(this.pos).selfDivScalar(100);
-      this.vel.selfAdd(destVel);
-      if (this.vel.x * this.vel.x + this.vel.y * this.vel.y > 0.005) this.vel.selfMulScalar(this.resistence);
+      dx = this.dest.x - this.pos.x;
+      dy = this.dest.y - this.pos.y;
+
+      this.vel.x = (this.vel.x + dx * this.speed) * this.resistence;
+      this.vel.y = (this.vel.y + dy * this.speed) * this.resistence;
+
+      this.pos.x += this.vel.x;
+      this.pos.y += this.vel.y;
     }
     if (this.toColor) {
       this.color.interpolate(this.toColor, 0.9);

@@ -44,7 +44,6 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({ c
         }
         if (image) {
           const points = getCanvasPoints(image, ww, wh);
-          console.log(points);
           particles = mapParticlesOntoPoints(particles, points, maxParticles);
           return;
         }
