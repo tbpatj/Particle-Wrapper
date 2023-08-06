@@ -1,9 +1,10 @@
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import Particle from "../classes/Particle";
 import useInitParticles from "../hooks/ParticleWrapper/useInitParticles";
+import { ParticleInputObject } from "../types/ParticleWrapper/types";
 
 interface ParticleWrapperProps {
-  input?: any;
+  input?: ParticleInputObject;
 }
 
 const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
@@ -52,8 +53,6 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
       setCtx(ctxRef);
       setCanvasWidth(canvasRef.current?.offsetWidth ?? 0);
       setCanvasHeight(canvasRef.current?.offsetHeight ?? 0);
-      // setCanvasWidth(canvasRef.current?.width ?? 0);
-      // setCanvasHeight(canvasRef.current?.height ?? 0);
     }
   }, [canvasRef]);
 

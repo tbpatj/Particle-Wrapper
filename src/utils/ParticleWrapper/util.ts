@@ -68,7 +68,7 @@ export const getImageDataOfText = (text: string, ctx: CanvasRenderingContext2D, 
 export const mapParticlesOntoPoints = (particles: Particle[], points: CanvasPoint[], maxParticles: number) => {
   const iterationAmount = points.length / maxParticles;
   let particleBaseSize = 1;
-  particleBaseSize = iterationAmount * 2;
+  particleBaseSize = iterationAmount * 1.5;
   if (particles.length === maxParticles) {
     for (let i = 0; Math.round(i / iterationAmount) < particles.length; i += iterationAmount) {
       //get a sightly random index for a painted point, that way we don't see the patterns of us iterating linearly through the pixels

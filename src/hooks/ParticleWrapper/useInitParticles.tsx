@@ -1,6 +1,6 @@
 import Particle from "../../classes/Particle";
 import Vector2D from "../../classes/Vector";
-import { CanvasPoint } from "../../types/ParticleWrapper/types";
+import { CanvasPoint, ParticleInputObject } from "../../types/ParticleWrapper/types";
 import { createParticlesList, getCanvasPoints, getImageDataOfImage, getImageDataOfText, mapParticlesOntoPoints } from "../../utils/ParticleWrapper/util";
 import { shuffle } from "../../utils/lists";
 
@@ -11,7 +11,7 @@ interface UseInitParticlesProps {
   particles: Particle[];
   setParticles: React.Dispatch<React.SetStateAction<Particle[]>>;
   maxParticles?: number;
-  input?: any;
+  input?: ParticleInputObject;
 }
 
 interface UseInitParticle {
@@ -35,12 +35,12 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({ c
         let image: Uint8ClampedArray | undefined = undefined;
         //if the user wants text to be the thing that particles show then get the positions from text
         console.log(typeof input);
-        if (typeof input === "string") {
-          image = getImageDataOfText(input as string, ctx, ww, wh);
+        if (input.input?.text) {
+          image = getImageDataOfText(input.input.text, ctx, ww, wh);
         }
         //if the user wants an image to be the thing we render
-        if (input?.src) {
-          image = getImageDataOfImage(input, ctx, ww, wh);
+        if (input?.input?.image) {
+          image = getImageDataOfImage(input.input.image, ctx, ww, wh);
         }
         if (image) {
           const points = getCanvasPoints(image, ww, wh);

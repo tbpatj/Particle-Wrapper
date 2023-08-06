@@ -1,62 +1,50 @@
-import React, { createRef, useEffect, useRef, useState } from "react";
+import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import ParticleWrapper from "./components/ParticleWrapper";
+import useImageLoader, { MyImage } from "./hooks/useImageLoader";
+import useWordInterval from "./hooks/useWordInterval";
+import { ParticleInputObject } from "./types/ParticleWrapper/types";
 const words = ["These apples", "come from", "down south", "you big", "bozo"];
+const images: MyImage[] = [
+  { src: "/color.webp", name: "color" },
+  { src: "/person.png", name: "person" },
+  { src: "/instagram.png", name: "instagram" },
+  { src: "/globe.png", name: "globe" },
+  { src: "/horse.webp", name: "horse" },
+  { src: "/troll.png", name: "troll" },
+];
 //TODO Create particle wrapper objects that get passed in, each object has the info you want to display
 //the rotation, how many particles are dedicated to that image, the size, the position, and any color changing properties
 function App() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("asdf");
   const [image, setImage] = useState<HTMLImageElement | undefined>();
   const [item, setItem] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout>();
-  const test = () => {
-    timerRef.current = setTimeout(() => {
-      setItem((item) => {
-        if (item > words.length) return 0;
-        return item + 1;
-      });
-    }, 2000);
-  };
-  useEffect(() => {
-    setInput(words[item]);
-    test();
-  }, [item]);
-
-  async function loadImage(url: string, elem: HTMLImageElement) {
-    return new Promise<HTMLImageElement>((resolve, reject) => {
-      elem.crossOrigin = "Anonymous";
-      elem.onload = () => resolve(elem);
-      elem.onerror = reject;
-      elem.src = url;
-    });
-  }
-
-  const getTroll = async () => {
-    let trollimg = new Image();
-    trollimg = await loadImage("/color.webp", trollimg); //set the link
-    console.log(trollimg.width);
-    console.log(typeof trollimg);
-    setImage(trollimg);
-    // setInput(trollimg);
-  };
-
-  useEffect(() => {
-    return () => clearTimeout(timerRef.current);
-  }, []);
-
-  useEffect(() => {
-    getTroll();
-  }, []);
+  const { loadedImages } = useImageLoader({ images });
+  const { currentWord, destroyTimeout } = useWordInterval({ words: words, time: 2000, startOnMount: true });
 
   const handleChange = (val: string) => {
     setInput(val);
-    clearTimeout(timerRef.current);
+    destroyTimeout();
   };
+
+  const getCurInput = useMemo(() => {
+    const parsedIndex = parseInt(input);
+    if (!isNaN(parsedIndex) && loadedImages.length > 0 && parsedIndex < loadedImages.length) {
+      return { input: { image: loadedImages?.[parsedIndex].image } } as ParticleInputObject;
+    } else {
+      return { input: { text: input } } as ParticleInputObject;
+    }
+  }, [input]);
+
+  useEffect(() => {
+    console.log(currentWord);
+    setInput(currentWord);
+  }, [currentWord]);
 
   return (
     <div className="App">
-      <ParticleWrapper input={input === "" ? (image ? image : undefined) : input} />
+      <ParticleWrapper input={getCurInput} />
       <input onChange={(e) => handleChange(e.target.value)} value={input} />
     </div>
   );
