@@ -42,8 +42,8 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
   input,
 }) => {
   function initParticles() {
-    const ww = canvasWidth || 500;
-    const wh = canvasHeight || 500;
+    const ww = canvasWidth || window.innerWidth;
+    const wh = canvasHeight || window.innerHeight;
     setParticles(
       createParticlesList(
         input?.options?.prtcleCnt ?? DEFAULT_PRTCL_CNT,

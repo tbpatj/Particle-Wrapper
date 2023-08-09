@@ -10,7 +10,7 @@ import {
 } from "../../types/ParticleWrapper/types";
 
 export const DEFAULT_PRTCL_CNT = 1000;
-export const DEFAULT_PRTCL_DST_RNG = 5;
+export const DEFAULT_PRTCL_DST_RNG = 2;
 export const DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES = false;
 export const DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT = false;
 export const DEFAULT_WRAPPER_OPTIONS: WrapperOptions = {

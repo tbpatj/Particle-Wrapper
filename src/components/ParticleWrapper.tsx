@@ -7,12 +7,11 @@ import {
   renderOptimizedParticles,
   runParticleLoop,
 } from "../utils/ParticleWrapper/particle";
+import { DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES } from "../utils/ParticleWrapper/util";
 
 interface ParticleWrapperProps {
   input?: ParticleInputObject;
 }
-
-const useOptimizeSmallParticles = false;
 
 const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   const canvasRef = createRef<HTMLCanvasElement>();
@@ -35,7 +34,10 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   const loop = useCallback(() => {
     //if we have a canvas element then we can start rendering things
     if (ctx) {
-      if (useOptimizeSmallParticles) {
+      if (
+        input?.options?.useOptimizedSmallParticles ??
+        DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES
+      ) {
         renderOptimizedParticles(ctx, particles, canvasWidth, canvasHeight);
       } else {
         runParticleLoop(ctx, particles, canvasWidth, canvasHeight);
@@ -43,24 +45,6 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
     }
     animationRef.current = requestAnimationFrame(loop);
   }, [ctx, particles]);
-
-  // useEffect(() => {
-  //   console.log('changed')
-  //   if(input?.options){
-  //   const {scaleX=1,scaleY=1,xOffset=0,yOffset=1} = input?.options
-  //   for (let i = 0; i < particles.length; i++) {
-  //     const p: Particle = particles[i];
-  //     if(p.dest && p.origDest){
-  //       p.dest.x = (p.origDest.x * scaleX) + xOffset
-  //       p.dest.y = (p.origDest.y * scaleY) + yOffset
-  //     }
-  //     else{
-  //       p.dest = p.origDest
-  //     }
-  //   }
-  // }
-
-  // },[input?.options])
 
   useEffect(() => {
     initScene();

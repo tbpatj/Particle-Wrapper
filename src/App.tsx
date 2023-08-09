@@ -3,8 +3,11 @@ import "./App.css";
 import ParticleWrapper from "./components/ParticleWrapper";
 import useImageLoader, { MyImage } from "./hooks/useImageLoader";
 import useWordInterval from "./hooks/useWordInterval";
-import { ParticleInputObject } from "./types/ParticleWrapper/types";
-const words = ["These apples", "come from", "down south", "you big", "bozo"];
+import {
+  ParticleInputObject,
+  WrapperOptions,
+} from "./types/ParticleWrapper/types";
+const words = ["Timothy Luebke", "Dev", "follow me", "on my", "8", "@luebketj"];
 const images: MyImage[] = [
   { src: "/color.webp", name: "color" },
   { src: "/person.png", name: "person" },
@@ -17,8 +20,18 @@ const images: MyImage[] = [
   { src: "/person2.png", name: "arrow" },
   { src: "/person3.png", name: "arrow" },
 ];
-//TODO Create particle wrapper objects that get passed in, each object has the info you want to display
-//the rotation, how many particles are dedicated to that image, the size, the position, and any color changing properties
+
+const particleWrapperOptions = {
+  useOptimizedSmallParticles: false,
+  mapParticlesToClosestPoint: false,
+  prtcleCnt: 1000,
+} as WrapperOptions;
+/**TODO, add in ability to add multiple images to the scan
+ * add in mouse pointer interaction (maybe make it so when the particles are touched they have a stunned state where they don't return back home until a certain time)
+ * finish up the ability to change colors on a text even maybe gradients
+ * finish up other attributes to add to a image before it scans it
+ * option to restrain particles to the destination, so when I'm doing quick things like an explosion I can make the particles not stick to the destination. Just basically stun them temporarily
+ */
 function App() {
   const [input, setInput] = useState("asdf");
   const [xOffset, setXOffset] = useState("0");
@@ -47,11 +60,12 @@ function App() {
           scaleX: 0.5,
           scaleY: 0.5,
         },
+        options: particleWrapperOptions,
       } as ParticleInputObject;
     } else {
       return {
         input: { text: input, fontSize: 100 },
-        options: { xOffset: parseFloat(xOffset) },
+        options: particleWrapperOptions,
       } as ParticleInputObject;
     }
   }, [input]);

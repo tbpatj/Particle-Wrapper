@@ -12,7 +12,11 @@ export interface UseWordInterval {
   startWordTimer: () => void;
 }
 
-const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({ words, time, startOnMount }) => {
+const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({
+  words,
+  time,
+  startOnMount,
+}) => {
   const timerRef = useRef<NodeJS.Timeout>();
   const [index, setIndex] = useState(0);
   const [currentWord, setCurrentWord] = useState(words[0]);
@@ -22,7 +26,7 @@ const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({ wor
     const timeoutTime = typeof time === "number" ? time : time[index];
     timerRef.current = setTimeout(() => {
       setIndex((indx) => {
-        if (indx >= words.length) return 0;
+        if (indx >= words.length - 1) return 0;
         return indx + 1;
       });
     }, 2000);
