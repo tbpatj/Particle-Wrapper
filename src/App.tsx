@@ -1,5 +1,4 @@
 import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import ParticleWrapper from "./components/ParticleWrapper";
 import useImageLoader, { MyImage } from "./hooks/useImageLoader";
@@ -13,15 +12,22 @@ const images: MyImage[] = [
   { src: "/globe.png", name: "globe" },
   { src: "/horse.webp", name: "horse" },
   { src: "/troll.png", name: "troll" },
+  { src: "/splash.webp", name: "splash" },
+  { src: "/arrow.png", name: "arrow" },
+  { src: "/person2.png", name: "arrow" },
+  { src: "/person3.png", name: "arrow" },
 ];
 //TODO Create particle wrapper objects that get passed in, each object has the info you want to display
 //the rotation, how many particles are dedicated to that image, the size, the position, and any color changing properties
 function App() {
   const [input, setInput] = useState("asdf");
-  const [image, setImage] = useState<HTMLImageElement | undefined>();
-  const [item, setItem] = useState(0);
+  const [xOffset, setXOffset] = useState("0");
   const { loadedImages } = useImageLoader({ images });
-  const { currentWord, destroyTimeout } = useWordInterval({ words: words, time: 2000, startOnMount: true });
+  const { currentWord, destroyTimeout } = useWordInterval({
+    words: words,
+    time: 2000,
+    startOnMount: true,
+  });
 
   const handleChange = (val: string) => {
     setInput(val);
@@ -30,10 +36,23 @@ function App() {
 
   const getCurInput = useMemo(() => {
     const parsedIndex = parseInt(input);
-    if (!isNaN(parsedIndex) && loadedImages.length > 0 && parsedIndex < loadedImages.length) {
-      return { input: { image: loadedImages?.[parsedIndex].image } } as ParticleInputObject;
+    if (
+      !isNaN(parsedIndex) &&
+      loadedImages.length > 0 &&
+      parsedIndex < loadedImages.length
+    ) {
+      return {
+        input: {
+          image: loadedImages?.[parsedIndex].image,
+          scaleX: 0.5,
+          scaleY: 0.5,
+        },
+      } as ParticleInputObject;
     } else {
-      return { input: { text: input } } as ParticleInputObject;
+      return {
+        input: { text: input, fontSize: 100 },
+        options: { xOffset: parseFloat(xOffset) },
+      } as ParticleInputObject;
     }
   }, [input]);
 
@@ -46,6 +65,11 @@ function App() {
     <div className="App">
       <ParticleWrapper input={getCurInput} />
       <input onChange={(e) => handleChange(e.target.value)} value={input} />
+      <input
+        type="number"
+        onChange={(e) => setXOffset(e.target.value)}
+        value={xOffset}
+      />
     </div>
   );
 }

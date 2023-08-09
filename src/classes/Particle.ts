@@ -19,10 +19,16 @@ interface ParticleConstructor {
 let dx = 0;
 let dy = 0;
 
-type ParticleRenderCallback = (ctx: CanvasRenderingContext2D, pos: Vector2D, color: ColorRGB, size: number) => void;
+type ParticleRenderCallback = (
+  ctx: CanvasRenderingContext2D,
+  pos: Vector2D,
+  color: ColorRGB,
+  size: number
+) => void;
 
 class Particle {
   pos: Vector2D;
+  origDest: Vector2D | undefined;
   dest: Vector2D | undefined;
   vel: Vector2D;
   color: ColorRGB;
@@ -31,7 +37,19 @@ class Particle {
   speed: number;
   resistence: number;
   renderCallback: ParticleRenderCallback | undefined;
-  constructor({ x, y, destX, destY, xVel = 0, yVel = 0, color = new ColorRGB({}), renderCallback, size = 5, resistence = 0.87, speed = 0.01 }: ParticleConstructor) {
+  constructor({
+    x,
+    y,
+    destX,
+    destY,
+    xVel = 0,
+    yVel = 0,
+    color = new ColorRGB({}),
+    renderCallback,
+    size = 5,
+    resistence = 0.87,
+    speed = 0.01,
+  }: ParticleConstructor) {
     this.pos = new Vector2D(x, y);
     this.vel = new Vector2D(xVel, yVel);
     if (destX && destY) this.dest = new Vector2D(destX, destY);
@@ -46,7 +64,8 @@ class Particle {
   }
 
   renderParticle = (ctx: CanvasRenderingContext2D) => {
-    if (this.renderCallback) this.renderCallback(ctx, this.pos, this.color, this.size);
+    if (this.renderCallback)
+      this.renderCallback(ctx, this.pos, this.color, this.size);
     else this.defaultRender(ctx);
   };
 
