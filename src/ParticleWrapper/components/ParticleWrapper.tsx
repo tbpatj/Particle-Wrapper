@@ -1,9 +1,15 @@
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import useInitParticles from "../hooks/useInitParticles";
-import { ParticleInputObject } from "../types/types";
+import { ParticleInputObject, WrapperOptions } from "../types/types";
 import { renderOptimizedParticles, runParticleLoop } from "../utils/particle";
-import { DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES } from "../utils/util";
+import {
+  DEFAULT_USE_MOUSE_INTERACTION,
+  DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES,
+  getOptionsWDefaults,
+} from "../utils/util";
 import Particle from "../classes/Particle";
+import { MouseCursor, initialMouseCursorObject } from "../types/mouse";
+import useMouseCursor from "../hooks/useMouseCursor";
 
 interface ParticleWrapperProps {
   input?: ParticleInputObject;
@@ -15,7 +21,10 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
   const animationRef = useRef(-1);
+  const mouseRef = useRef<MouseCursor>(initialMouseCursorObject);
   const [particles, setParticles] = useState<Particle[]>([]);
+
+  const { handleMouseMove } = useMouseCursor(mouseRef, canvasRef);
 
   const { initScene, initParticles } = useInitParticles({
     ctx,
@@ -35,9 +44,23 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
         input?.options?.useOptimizedSmallParticles ??
         DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES
       ) {
-        renderOptimizedParticles(ctx, particles, canvasWidth, canvasHeight);
+        renderOptimizedParticles(
+          ctx,
+          particles,
+          canvasWidth,
+          canvasHeight,
+          mouseRef.current,
+          getOptionsWDefaults(input?.options)
+        );
       } else {
-        runParticleLoop(ctx, particles, canvasWidth, canvasHeight);
+        runParticleLoop(
+          ctx,
+          particles,
+          canvasWidth,
+          canvasHeight,
+          mouseRef.current,
+          getOptionsWDefaults(input?.options)
+        );
       }
     }
     animationRef.current = requestAnimationFrame(loop);
@@ -70,6 +93,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
 
   return (
     <canvas
+      onMouseMove={handleMouseMove}
       ref={canvasRef}
       style={{ width: "100%", aspectRatio: "1/1" }}
       width={canvasWidth + "px"}

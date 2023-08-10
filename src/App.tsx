@@ -30,7 +30,7 @@ const particleWrapperOptions = {
   mapParticlesToClosestPoint: false,
   prtcleCnt: 1000,
 } as WrapperOptions;
-/**TODO, add in ability to add multiple images to the scan
+/**TODO
  * add in mouse pointer interaction (maybe make it so when the particles are touched they have a stunned state where they don't return back home until a certain time)
  * finish up the ability to change colors on a text even maybe gradients
  * finish up other attributes to add to a image before it scans it

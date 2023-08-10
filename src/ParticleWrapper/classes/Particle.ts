@@ -1,3 +1,5 @@
+import { MouseCursor } from "../types/mouse";
+import { DefaultedWrapperOptions } from "../types/types";
 import ColorRGB from "./ColorRGB";
 import Vector2D from "./Vector";
 
@@ -69,8 +71,22 @@ class Particle {
     else this.defaultRender(ctx);
   };
 
-  updateParticle = () => {
+  updateParticle = (mouse: MouseCursor, options: DefaultedWrapperOptions) => {
     this.pos.selfAdd(this.vel);
+    if (options.useMouseInteraction) {
+      //mouse effect, if the mouse is nearby we will move the particles accordingly with how the mouse is moving
+      let v = {
+        x: this.pos.x - mouse.x,
+        y: this.pos.y - mouse.y - mouse.scrollDY,
+      };
+      let mag = v.x * v.x + v.y * v.y;
+      //check if the particles are in a reasonable distance to even calculate their new velocites, also make sure that the mouse has been updated recently
+      if (mag < 100000) {
+        if (mag < 1000) mag = 1000;
+        this.vel.x += mouse.dx / (mag / 30);
+        this.vel.y += mouse.dy / (mag / 30);
+      }
+    }
     if (this.dest) {
       dx = this.dest.x - this.pos.x;
       dy = this.dest.y - this.pos.y;

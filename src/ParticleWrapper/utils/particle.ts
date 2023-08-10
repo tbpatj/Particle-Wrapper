@@ -1,12 +1,16 @@
 import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
+import { MouseCursor } from "../types/mouse";
+import { DefaultedWrapperOptions, WrapperOptions } from "../types/types";
 
 //create a image array and then map through the particles and update the array values with the pixels. This is really efficient for small particles. But as soon as the particles get bigger it bogs down due to not utilizing other optimiaztion techniques
 export const renderOptimizedParticles = (
   ctx: CanvasRenderingContext2D,
   particles: Particle[],
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
+  mouse: MouseCursor,
+  options: DefaultedWrapperOptions
 ) => {
   let b: Uint8ClampedArray,
     a,
@@ -76,7 +80,7 @@ export const renderOptimizedParticles = (
   //iterate through the particles and display and update each particle
   for (let i = 0; i < particles.length; i++) {
     const p: Particle = particles[i];
-    p.updateParticle();
+    p.updateParticle(mouse, options);
     if (
       p.pos.x + 5 < canvasWidth &&
       p.pos.y < canvasHeight &&
@@ -98,13 +102,15 @@ export const runParticleLoop = (
   ctx: CanvasRenderingContext2D,
   particles: Particle[],
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
+  mouse: MouseCursor,
+  options: DefaultedWrapperOptions
 ) => {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   //iterate through the particles and display each particle
   for (let i = 0; i < particles.length; i++) {
     const p: Particle = particles[i];
-    p.updateParticle();
+    p.updateParticle(mouse, options);
     p.renderParticle(ctx);
   }
 };

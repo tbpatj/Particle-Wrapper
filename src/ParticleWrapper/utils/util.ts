@@ -3,21 +3,39 @@ import Particle from "../classes/Particle";
 import Vector2D from "../classes/Vector";
 import {
   CanvasPoint,
+  DefaultedWrapperOptions,
+  EdgeInteractionMethods,
+  MouseInteractionTypes,
   ParticleImageInput,
   ParticleTextInput,
   WrapperOptions,
 } from "../types/types";
 
 //default values for settings
+export const DEFAULT_RESOLUTION_PERCENT = 50;
+export const DEFAULT_SHUFFLE_UPON_RERENDER = false;
 export const DEFAULT_PRTCL_CNT = 1000;
 export const DEFAULT_PRTCL_DST_RNG = 2;
 export const DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES = false;
 export const DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT = false;
-export const DEFAULT_WRAPPER_OPTIONS: WrapperOptions = {
+export const DEFAULT_USE_MOUSE_INTERACTION = true;
+export const DEFAULT_MOUSE_INTERACTION_TYPE: MouseInteractionTypes = "none";
+export const DEFAULT_EDGE_INTERACTION_TYPE: EdgeInteractionMethods = "teleport";
+
+export const DEFAULT_WRAPPER_OPTIONS: DefaultedWrapperOptions = {
+  resolutionPercent: DEFAULT_RESOLUTION_PERCENT,
   prtcleCnt: DEFAULT_PRTCL_CNT,
   useOptimizedSmallParticles: DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES,
   mapParticlesToClosestPoint: DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT,
   prtclDstRng: DEFAULT_PRTCL_DST_RNG,
+  useMouseInteraction: DEFAULT_USE_MOUSE_INTERACTION,
+  edgeInteractionType: DEFAULT_EDGE_INTERACTION_TYPE,
+  shuffleUponRerender: DEFAULT_SHUFFLE_UPON_RERENDER,
+  mouseInteractionType: DEFAULT_MOUSE_INTERACTION_TYPE,
+};
+
+export const getOptionsWDefaults = (options: WrapperOptions | undefined) => {
+  return { ...DEFAULT_WRAPPER_OPTIONS, ...options } as DefaultedWrapperOptions;
 };
 
 //upon initialization prepopulate the particle list using this function
@@ -144,11 +162,8 @@ export const mapParticlesOntoClosestPoint = (
   options?: WrapperOptions
 ) => {
   //get the default or custom settings
-  const {
-    prtcleCnt = DEFAULT_PRTCL_CNT,
-    useOptimizedSmallParticles,
-    prtclDstRng = DEFAULT_PRTCL_DST_RNG,
-  } = { ...DEFAULT_WRAPPER_OPTIONS, ...options };
+  const { prtcleCnt, useOptimizedSmallParticles, prtclDstRng } =
+    getOptionsWDefaults(options);
   const destRangeHalf = prtclDstRng / 2;
   //iteration amount is also how many pixels to particles there are
   const iterationAmount = points.length / prtcleCnt;
@@ -221,11 +236,8 @@ export const mapParticlesOntoPoints = (
   options?: WrapperOptions
 ) => {
   //get the default or custom settings
-  const {
-    prtcleCnt = DEFAULT_PRTCL_CNT,
-    useOptimizedSmallParticles = false,
-    prtclDstRng = DEFAULT_PRTCL_DST_RNG,
-  } = { ...DEFAULT_WRAPPER_OPTIONS, ...options };
+  const { prtcleCnt, useOptimizedSmallParticles, prtclDstRng } =
+    getOptionsWDefaults(options);
   const destRangeHalf = prtclDstRng / 2;
   //iteration amount is also how many pixels to particles there are
   const iterationAmount = points.length / prtcleCnt;

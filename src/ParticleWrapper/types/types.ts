@@ -25,6 +25,10 @@ export interface ParticleImageInput extends BasicParticleInput {
   image: HTMLImageElement;
 }
 
+export type EdgeInteractionMethods = "bounce" | "teleport" | "none";
+
+export type MouseInteractionTypes = "none";
+
 export interface WrapperOptions {
   /** what percent the wrapper scans an "image" and returns back to be processed to assign particles to */
   resolutionPercent?: number;
@@ -38,6 +42,23 @@ export interface WrapperOptions {
   prtclDstRng?: number;
   /** shuffles the particles when we render a new image, it just creates a different kind of display really, removes patterns found in the particle movement */
   shuffleUponRerender?: boolean;
+  /** enable interaction between the particles and the mouse */
+  useMouseInteraction?: boolean;
+  mouseInteractionType?: MouseInteractionTypes;
+  /** determines how the particles interact when they reach the edge  */
+  edgeInteractionType?: EdgeInteractionMethods;
+}
+
+export interface DefaultedWrapperOptions {
+  resolutionPercent: number;
+  mapParticlesToClosestPoint: boolean;
+  useOptimizedSmallParticles: boolean;
+  prtcleCnt: number;
+  prtclDstRng: number;
+  shuffleUponRerender: boolean;
+  useMouseInteraction: boolean;
+  mouseInteractionType: MouseInteractionTypes;
+  edgeInteractionType: EdgeInteractionMethods;
 }
 
 export type ParticleInput = ParticleImageInput | ParticleTextInput;
