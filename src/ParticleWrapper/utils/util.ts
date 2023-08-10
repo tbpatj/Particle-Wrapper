@@ -98,7 +98,7 @@ export const getCanvasPoints = (
 };
 
 //stamp an image on the canvas then get the image data so we can afterward iterate through the pixls and find the image
-export const getImageDataOfImage = (
+export const renderImageToCtx = (
   input: ParticleImageInput,
   ctx: CanvasRenderingContext2D,
   ww: number,
@@ -106,7 +106,6 @@ export const getImageDataOfImage = (
 ) => {
   //prep up the stamp with data we passed through, scaling, positioning, rotation.
   const { image, xPos, yPos, scaleX, scaleY } = input;
-  ctx.clearRect(0, 0, ww, wh);
   const iw = image.width * (scaleX ?? 1);
   const ih = image.height * (scaleY ?? 1);
   const ihw = iw / 2;
@@ -115,21 +114,15 @@ export const getImageDataOfImage = (
   const yOffset = wh / 2 - ihh + (yPos ?? 0);
   //stamp the image onto the canvas
   ctx.drawImage(image, xOffset, yOffset, iw, ih);
-  //get the raw list of pixels
-  const data = ctx.getImageData(0, 0, ww, wh).data;
-  //clear off the stamp
-  ctx.clearRect(0, 0, ww, wh);
-  return data;
 };
 
 //stamp some text on the canvas then get the image data so we can afterward iterate through the pixels and find the image
-export const getImageDataOfText = (
+export const renderTextToCtx = (
   input: ParticleTextInput,
   ctx: CanvasRenderingContext2D,
   ww: number,
   wh: number
 ) => {
-  ctx.clearRect(0, 0, ww, wh);
   //apply the font and style of text we want
   ctx.font = "bold " + (input.fontSize ?? 70) + "px sans-serif";
   ctx.textAlign = "center";
@@ -142,10 +135,6 @@ export const getImageDataOfText = (
     ww / 2 + (input?.xPos ?? 0),
     wh / 2 + (input?.yPos ?? 0)
   );
-  //get the raw data of the image array
-  const data = ctx.getImageData(0, 0, ww, wh).data;
-  ctx.clearRect(0, 0, ww, wh);
-  return data;
 };
 
 //after we have gathered the points in which we should put particles we need to tell the particles to go to those points here is where we do that

@@ -1,18 +1,20 @@
 import Particle from "../classes/Particle";
 import {
   ParticleImageInput,
+  ParticleInput,
   ParticleInputObject,
   ParticleTextInput,
 } from "../types/types";
+import { shuffle } from "../utils/lists";
 import {
   DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT,
   DEFAULT_PRTCL_CNT,
   createParticlesList,
   getCanvasPoints,
-  getImageDataOfImage,
-  getImageDataOfText,
   mapParticlesOntoClosestPoint,
   mapParticlesOntoPoints,
+  renderImageToCtx,
+  renderTextToCtx,
 } from "../utils/util";
 
 interface UseInitParticlesProps {
@@ -54,26 +56,40 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
       const ww = canvasWidth ?? 500;
       const wh = canvasHeight ?? 500;
       if (input) {
-        // particles = shuffle(particles);
-        let image: Uint8ClampedArray | undefined = undefined;
-        //if the user wants text to be the thing that particles show then get the positions from text
-        if (input.input?.text) {
-          const inputOptions = input.input as ParticleTextInput;
-          image = getImageDataOfText(inputOptions, ctx, ww, wh);
+        ctx.clearRect(0, 0, ww, wh);
+        let renderedToCanvas: boolean = false;
+
+        //iterate through all of the inputs passed in and render them to the canvas
+        for (let l = 0; l < (input?.inputs?.length ?? 0); l++) {
+          const renderTask: any | undefined = input?.inputs?.[l] ?? undefined;
+          //if the user wants text to be the thing that particles show then get the positions from text
+          if (renderTask?.text) {
+            const inputOptions = renderTask as ParticleTextInput;
+            renderTextToCtx(inputOptions, ctx, ww, wh);
+            renderedToCanvas = true;
+          }
+          //if the user wants an image to be the thing we render
+          if (renderTask?.image) {
+            const inputOptions = renderTask as ParticleImageInput;
+            renderImageToCtx(inputOptions, ctx, ww, wh);
+            renderedToCanvas = true;
+          }
         }
-        //if the user wants an image to be the thing we render
-        if (input?.input?.image) {
-          const inputOptions = input.input as ParticleImageInput;
-          image = getImageDataOfImage(input.input, ctx, ww, wh);
-          // shuffle(particles)
-        }
-        if (image) {
+        //if we rendered anything the canvas get that and convert it into particle points then assign the particles
+        if (renderedToCanvas) {
+          //get the raw data of the image array
+          const image = ctx.getImageData(0, 0, ww, wh).data;
+          ctx.clearRect(0, 0, ww, wh);
           const points = getCanvasPoints(
             image,
             ww,
             wh,
             input.options?.resolutionPercent
           );
+          //if we want to shuffle the particles to remove patterns that appear due to the particles being in the same position in the list then do so here
+          if (input.options?.shuffleUponRerender)
+            particles = shuffle(particles);
+          //choose which mapping method we want to use and map the particles to the points
           if (
             input.options?.mapParticlesToClosestPoint ??
             DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT
@@ -93,6 +109,7 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
           return;
         }
       }
+      //if we aren't mapping particles to points, then just update the destination to undefined so the particles float freely
       for (let i = 0; i < particles.length; i++) {
         particles[i].dest = undefined;
       }

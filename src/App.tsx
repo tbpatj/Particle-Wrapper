@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import {
+  ParticleInput,
   ParticleInputObject,
+  ParticleTextInput,
   WrapperOptions,
 } from "./ParticleWrapper/types/types";
 import useImageLoader, {
@@ -57,16 +59,18 @@ function App() {
       parsedIndex < loadedImages.length
     ) {
       return {
-        input: {
-          image: loadedImages?.[parsedIndex].image,
-          scaleX: 0.5,
-          scaleY: 0.5,
-        },
+        inputs: [
+          {
+            image: loadedImages?.[parsedIndex].image,
+            scaleX: 0.5,
+            scaleY: 0.5,
+          },
+        ],
         options: particleWrapperOptions,
       } as ParticleInputObject;
     } else {
       return {
-        input: { text: input, fontSize: 100 },
+        inputs: [{ text: input, fontSize: "100" }],
         options: particleWrapperOptions,
       } as ParticleInputObject;
     }

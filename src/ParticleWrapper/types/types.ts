@@ -36,13 +36,15 @@ export interface WrapperOptions {
   prtcleCnt?: number;
   /** creates an offset from the original pxl point that a particle is destined to go to*/
   prtclDstRng?: number;
+  /** shuffles the particles when we render a new image, it just creates a different kind of display really, removes patterns found in the particle movement */
+  shuffleUponRerender?: boolean;
 }
 
 export type ParticleInput = ParticleImageInput | ParticleTextInput;
 
 export interface ParticleInputObject {
   /** any parameters in here modify the "stamp" used to obtain particle positions, updating this constantly may slow some processes, as this is a heavier modifier */
-  input?: any;
+  inputs?: ParticleInput[];
   /** these options modify the particles directly, can be used for quick animations */
   options?: WrapperOptions;
 }
