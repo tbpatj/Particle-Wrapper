@@ -47,6 +47,8 @@ export interface WrapperOptions {
   mouseInteractionType?: MouseInteractionTypes;
   /** determines how the particles interact when they reach the edge  */
   edgeInteractionType?: EdgeInteractionMethods;
+  /** how bouncy the edge is if bounce is enabled */
+  edgeRestitution?: number;
 }
 
 export interface DefaultedWrapperOptions {
@@ -59,6 +61,7 @@ export interface DefaultedWrapperOptions {
   useMouseInteraction: boolean;
   mouseInteractionType: MouseInteractionTypes;
   edgeInteractionType: EdgeInteractionMethods;
+  edgeRestitution: number;
 }
 
 export type ParticleInput = ParticleImageInput | ParticleTextInput;

@@ -26,9 +26,10 @@ const images: MyImage[] = [
 ];
 
 const particleWrapperOptions = {
-  useOptimizedSmallParticles: false,
+  useOptimizedSmallParticles: true,
   mapParticlesToClosestPoint: false,
   prtcleCnt: 1000,
+  edgeInteractionType: "bounce",
 } as WrapperOptions;
 /**TODO
  * add in mouse pointer interaction (maybe make it so when the particles are touched they have a stunned state where they don't return back home until a certain time)
@@ -62,8 +63,15 @@ function App() {
         inputs: [
           {
             image: loadedImages?.[parsedIndex].image,
-            scaleX: 0.5,
-            scaleY: 0.5,
+            scaleX: 1,
+            scaleY: 1,
+            xPos: 100,
+          },
+          {
+            image: loadedImages?.[1].image,
+            scaleX: 1,
+            scaleY: 1,
+            xPos: -100,
           },
         ],
         options: particleWrapperOptions,

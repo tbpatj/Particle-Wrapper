@@ -1,7 +1,7 @@
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import useInitParticles from "../hooks/useInitParticles";
 import { ParticleInputObject, WrapperOptions } from "../types/types";
-import { renderOptimizedParticles, runParticleLoop } from "../utils/particle";
+import { renderOptimizedParticles, runParticleLoop } from "../utils/rendering";
 import {
   DEFAULT_USE_MOUSE_INTERACTION,
   DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES,
@@ -10,6 +10,7 @@ import {
 import Particle from "../classes/Particle";
 import { MouseCursor, initialMouseCursorObject } from "../types/mouse";
 import useMouseCursor from "../hooks/useMouseCursor";
+import { excludeOldMouseEntries } from "../utils/mouse";
 
 interface ParticleWrapperProps {
   input?: ParticleInputObject;
@@ -37,6 +38,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
 
   //particle updating methods
   const loop = useCallback(() => {
+    excludeOldMouseEntries(mouseRef);
     //if we have a canvas element then we can start rendering things
     if (ctx) {
       //if the custom option was set to use the optimized small particles use those particles instead.

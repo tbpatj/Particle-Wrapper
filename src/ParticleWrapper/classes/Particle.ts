@@ -1,5 +1,6 @@
 import { MouseCursor } from "../types/mouse";
 import { DefaultedWrapperOptions } from "../types/types";
+import { edgeDetection } from "../utils/particle";
 import ColorRGB from "./ColorRGB";
 import Vector2D from "./Vector";
 
@@ -71,7 +72,12 @@ class Particle {
     else this.defaultRender(ctx);
   };
 
-  updateParticle = (mouse: MouseCursor, options: DefaultedWrapperOptions) => {
+  updateParticle = (
+    mouse: MouseCursor,
+    canvasWidth: number,
+    canvasHeight: number,
+    options: DefaultedWrapperOptions
+  ) => {
     this.pos.selfAdd(this.vel);
     if (options.useMouseInteraction) {
       //mouse effect, if the mouse is nearby we will move the particles accordingly with how the mouse is moving
@@ -86,6 +92,17 @@ class Particle {
         this.vel.x += mouse.dx / (mag / 30);
         this.vel.y += mouse.dy / (mag / 30);
       }
+    }
+    edgeDetection(
+      this,
+      canvasWidth,
+      canvasHeight,
+      options.edgeInteractionType,
+      options.edgeRestitution
+    );
+    if (this.vel.x * this.vel.x + this.vel.y * this.vel.y > 0.3) {
+      this.vel.x *= 0.995;
+      this.vel.y *= 0.995;
     }
     if (this.dest) {
       dx = this.dest.x - this.pos.x;

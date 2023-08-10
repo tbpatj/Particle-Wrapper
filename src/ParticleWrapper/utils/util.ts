@@ -21,6 +21,7 @@ export const DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT = false;
 export const DEFAULT_USE_MOUSE_INTERACTION = true;
 export const DEFAULT_MOUSE_INTERACTION_TYPE: MouseInteractionTypes = "none";
 export const DEFAULT_EDGE_INTERACTION_TYPE: EdgeInteractionMethods = "teleport";
+export const DEFAULT_EDGE_RESTITUTION = 0.8;
 
 export const DEFAULT_WRAPPER_OPTIONS: DefaultedWrapperOptions = {
   resolutionPercent: DEFAULT_RESOLUTION_PERCENT,
@@ -32,6 +33,7 @@ export const DEFAULT_WRAPPER_OPTIONS: DefaultedWrapperOptions = {
   edgeInteractionType: DEFAULT_EDGE_INTERACTION_TYPE,
   shuffleUponRerender: DEFAULT_SHUFFLE_UPON_RERENDER,
   mouseInteractionType: DEFAULT_MOUSE_INTERACTION_TYPE,
+  edgeRestitution: DEFAULT_EDGE_RESTITUTION,
 };
 
 export const getOptionsWDefaults = (options: WrapperOptions | undefined) => {

@@ -1,9 +1,9 @@
 import { MouseCursor } from "../types/mouse";
 
-type MouseRef = React.MutableRefObject<MouseCursor>;
+export type MouseRef = React.MutableRefObject<MouseCursor>;
 type CanvasRef = React.RefObject<HTMLCanvasElement>;
 
-type ReactMouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
+export type ReactMouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
 
 interface UseMouseCursor {
   handleMouseMove: (e: ReactMouseEvent) => void;
@@ -22,7 +22,7 @@ const useMouseCursor: (
       let dx = 0;
       let dy = 0;
       //make sure we aren't recording the user moving the cursor out of the canvas and then to another position on the other side of the canvas making things flip out
-      if (ref.current.lastRecordedTime.getTime() - now.getTime() < 1000) {
+      if (now.getTime() - ref.current.lastRecordedTime.getTime() < 100) {
         dx = x - ref.current.x;
         dy = y - ref.current.y;
       }
