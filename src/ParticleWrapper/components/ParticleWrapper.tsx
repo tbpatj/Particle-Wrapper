@@ -30,6 +30,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   const loop = useCallback(() => {
     //if we have a canvas element then we can start rendering things
     if (ctx) {
+      //if the custom option was set to use the optimized small particles use those particles instead.
       if (
         input?.options?.useOptimizedSmallParticles ??
         DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES
@@ -46,22 +47,22 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
     initScene();
   }, [ctx, input]);
 
-  //if elements in the animation are updated just redo the animation frame so it loads up the new variables
+  //if elements in the animation are updated just reset the animation frame so it loads up the new variables
   useEffect(() => {
     cancelAnimationFrame(animationRef.current);
     loop();
   }, [particles, ctx]);
 
+  //when the component first loads up initialize all the dedicated particles
   useEffect(() => {
     initParticles();
   }, []);
 
+  //when the canvas ref updates, update the canvas width and height and also get the ctx reference so we can render to the canvas
   useEffect(() => {
     const ctxRef = canvasRef.current?.getContext("2d");
     if (ctxRef && !ctx) {
       setCtx(ctxRef);
-      // setCanvasWidth(300)
-      // setCanvasHeight(500)
       setCanvasWidth(canvasRef.current?.offsetWidth ?? 0);
       setCanvasHeight(canvasRef.current?.offsetHeight ?? 0);
     }
