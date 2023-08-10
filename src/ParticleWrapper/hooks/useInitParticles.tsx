@@ -1,23 +1,19 @@
-import Particle from "../../classes/Particle";
-import Vector2D from "../../classes/Vector";
+import Particle from "../classes/Particle";
 import {
-  CanvasPoint,
   ParticleImageInput,
   ParticleInputObject,
   ParticleTextInput,
-} from "../../types/ParticleWrapper/types";
+} from "../types/types";
 import {
   DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT,
   DEFAULT_PRTCL_CNT,
-  DEFAULT_WRAPPER_OPTIONS,
   createParticlesList,
   getCanvasPoints,
   getImageDataOfImage,
   getImageDataOfText,
   mapParticlesOntoClosestPoint,
   mapParticlesOntoPoints,
-} from "../../utils/ParticleWrapper/util";
-import { shuffle } from "../../utils/lists";
+} from "../utils/util";
 
 interface UseInitParticlesProps {
   ctx: CanvasRenderingContext2D | undefined;

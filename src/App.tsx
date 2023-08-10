@@ -1,12 +1,14 @@
 import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import ParticleWrapper from "./components/ParticleWrapper";
-import useImageLoader, { MyImage } from "./hooks/useImageLoader";
-import useWordInterval from "./hooks/useWordInterval";
 import {
   ParticleInputObject,
   WrapperOptions,
-} from "./types/ParticleWrapper/types";
+} from "./ParticleWrapper/types/types";
+import useImageLoader, {
+  MyImage,
+} from "./ParticleWrapper/hooks/useImageLoader";
+import useWordInterval from "./ParticleWrapper/hooks/useWordInterval";
+import ParticleWrapper from "./ParticleWrapper/components/ParticleWrapper";
 const words = ["Timothy Luebke", "Dev", "follow me", "on my", "8", "@luebketj"];
 const images: MyImage[] = [
   { src: "/color.webp", name: "color" },

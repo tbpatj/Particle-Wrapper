@@ -1,13 +1,9 @@
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import useInitParticles from "../hooks/useInitParticles";
+import { ParticleInputObject } from "../types/types";
+import { renderOptimizedParticles, runParticleLoop } from "../utils/particle";
+import { DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES } from "../utils/util";
 import Particle from "../classes/Particle";
-import useInitParticles from "../hooks/ParticleWrapper/useInitParticles";
-import { ParticleInputObject } from "../types/ParticleWrapper/types";
-import Vector2D from "../classes/Vector";
-import {
-  renderOptimizedParticles,
-  runParticleLoop,
-} from "../utils/ParticleWrapper/particle";
-import { DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES } from "../utils/ParticleWrapper/util";
 
 interface ParticleWrapperProps {
   input?: ParticleInputObject;

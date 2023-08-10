@@ -1,5 +1,5 @@
-import ColorRGB from "../../classes/ColorRGB";
-import Particle from "../../classes/Particle";
+import ColorRGB from "../classes/ColorRGB";
+import Particle from "../classes/Particle";
 export const renderOptimizedParticles = (
   ctx: CanvasRenderingContext2D,
   particles: Particle[],

@@ -1,13 +1,12 @@
-import { randomBytes } from "crypto";
-import ColorRGB from "../../classes/ColorRGB";
-import Particle from "../../classes/Particle";
-import Vector2D from "../../classes/Vector";
+import ColorRGB from "../classes/ColorRGB";
+import Particle from "../classes/Particle";
+import Vector2D from "../classes/Vector";
 import {
   CanvasPoint,
   ParticleImageInput,
   ParticleTextInput,
   WrapperOptions,
-} from "../../types/ParticleWrapper/types";
+} from "../types/types";
 
 export const DEFAULT_PRTCL_CNT = 1000;
 export const DEFAULT_PRTCL_DST_RNG = 2;
