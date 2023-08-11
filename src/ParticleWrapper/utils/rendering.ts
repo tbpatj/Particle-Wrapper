@@ -2,6 +2,7 @@ import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
 import { MouseCursor } from "../types/mouse";
 import { DefaultedWrapperOptions, WrapperOptions } from "../types/types";
+var test = 0;
 
 //create a image array and then map through the particles and update the array values with the pixels. This is really efficient for small particles. But as soon as the particles get bigger it bogs down due to not utilizing other optimiaztion techniques
 export const renderOptimizedParticles = (
@@ -68,7 +69,7 @@ export const renderOptimizedParticles = (
             color.G,
             color.B,
             //create a sort of anitaliasing so the circle doesn't look so harsh or like squares for some.
-            Math.min(color.A * (radSqr / mag), 255)
+            Math.min(color.A * (radius / mag), 255)
           );
         }
       }
@@ -95,6 +96,7 @@ export const renderOptimizedParticles = (
     }
   }
   ctx.putImageData(a, 0, 0);
+  test += 0.08;
 };
 
 //run a basic particle loop with the default rendering implemented in the particles class

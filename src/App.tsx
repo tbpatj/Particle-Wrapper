@@ -22,13 +22,22 @@ const images: MyImage[] = [
   { src: "/splash.webp", name: "splash" },
   { src: "/arrow.png", name: "arrow" },
   { src: "/person2.png", name: "arrow" },
+  { src: "/person3.jpeg", name: "arrow" },
+  { src: "/mike.png", name: "arrow" },
+  { src: "/fire.png", name: "arrow" },
+  { src: "/cloud.png", name: "arrow" },
+  { src: "/heart.png", name: "arrow" },
+  { src: "/moana.png", name: "arrow" },
+  { src: "/kylo.png", name: "arrow" },
+  { src: "/web.png", name: "arrow" },
+  { src: "/person4.png", name: "arrow" },
   { src: "/person3.png", name: "arrow" },
 ];
 
 const particleWrapperOptions = {
   useOptimizedSmallParticles: true,
   mapParticlesToClosestPoint: false,
-  prtcleCnt: 1000,
+  prtcleCnt: 5000,
   edgeInteractionType: "bounce",
 } as WrapperOptions;
 /**TODO
@@ -65,13 +74,6 @@ function App() {
             image: loadedImages?.[parsedIndex].image,
             scaleX: 1,
             scaleY: 1,
-            xPos: 100,
-          },
-          {
-            image: loadedImages?.[1].image,
-            scaleX: 1,
-            scaleY: 1,
-            xPos: -100,
           },
         ],
         options: particleWrapperOptions,

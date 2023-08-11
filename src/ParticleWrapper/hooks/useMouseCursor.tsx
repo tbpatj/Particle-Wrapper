@@ -32,6 +32,7 @@ const useMouseCursor: (
         y,
         dx,
         dy,
+        magSqr: dx * dx + dy * dy,
         lastRecordedTime: now,
       } as MouseCursor;
     }

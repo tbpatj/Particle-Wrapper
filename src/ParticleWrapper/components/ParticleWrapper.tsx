@@ -97,7 +97,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
     <canvas
       onMouseMove={handleMouseMove}
       ref={canvasRef}
-      style={{ width: "100%", aspectRatio: "1/1" }}
+      style={{ width: "100%", height: "100%" }}
       width={canvasWidth + "px"}
       height={canvasHeight + "px"}
     />

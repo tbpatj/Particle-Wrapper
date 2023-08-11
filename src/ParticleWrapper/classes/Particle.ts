@@ -79,18 +79,25 @@ class Particle {
     options: DefaultedWrapperOptions
   ) => {
     this.pos.selfAdd(this.vel);
-    if (options.useMouseInteraction) {
+    const velMag = this.vel.x * this.vel.x + this.vel.y * this.vel.y;
+    if (options.useMouseInteraction && (mouse.dx !== 0 || mouse.dy !== 0)) {
       //mouse effect, if the mouse is nearby we will move the particles accordingly with how the mouse is moving
       let v = {
         x: this.pos.x - mouse.x,
         y: this.pos.y - mouse.y - mouse.scrollDY,
       };
       let mag = v.x * v.x + v.y * v.y;
-      //check if the particles are in a reasonable distance to even calculate their new velocites, also make sure that the mouse has been updated recently
-      if (mag < 100000) {
+      //check if the particles are in a reasonable distance to even calculate their new velocites
+      if (mag < 10000) {
+        const vDotM = (this.vel.x * mouse.dx + this.vel.y * mouse.dy) / mag;
+        // console.log(vDotM);
         if (mag < 1000) mag = 1000;
-        this.vel.x += mouse.dx / (mag / 30);
-        this.vel.y += mouse.dy / (mag / 30);
+        if (velMag < mouse.magSqr || (vDotM < 0.01 && mouse.magSqr > 10)) {
+          const dx = mouse.dx - this.vel.x;
+          const dy = mouse.dy - this.vel.y;
+          this.vel.x += dx / (mag / 100);
+          this.vel.y += dy / (mag / 100);
+        }
       }
     }
     edgeDetection(
@@ -100,7 +107,7 @@ class Particle {
       options.edgeInteractionType,
       options.edgeRestitution
     );
-    if (this.vel.x * this.vel.x + this.vel.y * this.vel.y > 0.3) {
+    if (velMag > 0.3) {
       this.vel.x *= 0.995;
       this.vel.y *= 0.995;
     }

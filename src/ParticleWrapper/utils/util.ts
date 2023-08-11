@@ -52,7 +52,7 @@ export const createParticlesList = (
     const randY = Math.random() * wh;
     const randVelX = Math.random() * 1 - 0.5;
     const randVelY = Math.random() * 1 - 0.5;
-    const size = Math.random() * 2 + 1;
+    const size = Math.random() * 0 + 1;
     particles.push(
       new Particle({ x: randX, y: randY, xVel: randVelX, yVel: randVelY, size })
     );
