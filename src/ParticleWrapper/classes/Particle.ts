@@ -1,6 +1,6 @@
 import { MouseCursor } from "../types/mouse";
 import { DefaultedWrapperOptions } from "../types/types";
-import { edgeDetection } from "../utils/particle";
+import { edgeDetection, mouseCollision } from "../utils/particle";
 import ColorRGB from "./ColorRGB";
 import Vector2D from "./Vector";
 
@@ -80,26 +80,9 @@ class Particle {
   ) => {
     this.pos.selfAdd(this.vel);
     const velMag = this.vel.x * this.vel.x + this.vel.y * this.vel.y;
-    if (options.useMouseInteraction && (mouse.dx !== 0 || mouse.dy !== 0)) {
-      //mouse effect, if the mouse is nearby we will move the particles accordingly with how the mouse is moving
-      let v = {
-        x: this.pos.x - mouse.x,
-        y: this.pos.y - mouse.y - mouse.scrollDY,
-      };
-      let mag = v.x * v.x + v.y * v.y;
-      //check if the particles are in a reasonable distance to even calculate their new velocites
-      if (mag < 10000) {
-        const vDotM = (this.vel.x * mouse.dx + this.vel.y * mouse.dy) / mag;
-        // console.log(vDotM);
-        if (mag < 1000) mag = 1000;
-        if (velMag < mouse.magSqr || (vDotM < 0.01 && mouse.magSqr > 10)) {
-          const dx = mouse.dx - this.vel.x;
-          const dy = mouse.dy - this.vel.y;
-          this.vel.x += dx / (mag / 100);
-          this.vel.y += dy / (mag / 100);
-        }
-      }
-    }
+    //mouse effect, if the mouse is nearby we will move the particles accordingly with how the mouse is moving
+
+    mouseCollision(this, velMag, mouse, options);
     edgeDetection(
       this,
       canvasWidth,

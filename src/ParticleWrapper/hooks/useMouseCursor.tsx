@@ -26,13 +26,25 @@ const useMouseCursor: (
         dx = x - ref.current.x;
         dy = y - ref.current.y;
       }
+      const lastX = ref.current.x;
+      const lastY = ref.current.y;
+      //get the velocity vector properties
+      const magSqr = dx * dx + dy * dy;
+      const mag = Math.sqrt(magSqr);
+      const nDx = dx / mag;
+      const nDy = dy / mag;
       ref.current = {
         ...ref.current,
-        x: x,
+        x,
         y,
+        lastX,
+        lastY,
         dx,
         dy,
-        magSqr: dx * dx + dy * dy,
+        magSqr: magSqr,
+        mag: mag,
+        nDx,
+        nDy,
         lastRecordedTime: now,
       } as MouseCursor;
     }

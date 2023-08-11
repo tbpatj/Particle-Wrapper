@@ -44,6 +44,12 @@ export interface WrapperOptions {
   shuffleUponRerender?: boolean;
   /** enable interaction between the particles and the mouse */
   useMouseInteraction?: boolean;
+  /** use a more precise method of calculating which particles the mouse has touched, can be slightly more intensive so turn off if optimizing */
+  usePreciseMouseDetection?: boolean;
+  /** the distance from the cursor with which things interact */
+  mouseInteractionFieldDistance?: number;
+  /** the intensity of the interaction with the mouse cursor */
+  mouseInteractionFieldIntensity?: number;
   mouseInteractionType?: MouseInteractionTypes;
   /** determines how the particles interact when they reach the edge  */
   edgeInteractionType?: EdgeInteractionMethods;
@@ -59,6 +65,9 @@ export interface DefaultedWrapperOptions {
   prtclDstRng: number;
   shuffleUponRerender: boolean;
   useMouseInteraction: boolean;
+  usePreciseMouseDetection: boolean;
+  mouseInteractionFieldDistance: number;
+  mouseInteractionFieldIntensity: number;
   mouseInteractionType: MouseInteractionTypes;
   edgeInteractionType: EdgeInteractionMethods;
   edgeRestitution: number;
