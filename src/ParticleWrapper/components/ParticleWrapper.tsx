@@ -1,9 +1,8 @@
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import useInitParticles from "../hooks/useInitParticles";
-import { ParticleInputObject, WrapperOptions } from "../types/types";
+import { ParticleInputObject } from "../types/types";
 import { renderOptimizedParticles, runParticleLoop } from "../utils/rendering";
 import {
-  DEFAULT_USE_MOUSE_INTERACTION,
   DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES,
   getOptionsWDefaults,
 } from "../utils/util";
@@ -11,6 +10,7 @@ import Particle from "../classes/Particle";
 import { MouseCursor, initialMouseCursorObject } from "../types/mouse";
 import useMouseCursor from "../hooks/useMouseCursor";
 import { excludeOldMouseEntries } from "../utils/mouse";
+import useFPS from "../hooks/useFPS";
 
 interface ParticleWrapperProps {
   input?: ParticleInputObject;
@@ -24,6 +24,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   const animationRef = useRef(-1);
   const mouseRef = useRef<MouseCursor>(initialMouseCursorObject);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const { fpsRef, updateFPS } = useFPS();
 
   const { handleMouseMove } = useMouseCursor(mouseRef, canvasRef);
 
@@ -65,6 +66,14 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
         );
       }
     }
+    updateFPS();
+    if (ctx) {
+      ctx.font = "bold " + 16 + "px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillStyle = "black";
+      //stamp the text onto the canvas
+      ctx.fillText(`${fpsRef.current.fps} FPS`, 10, 30);
+    }
     animationRef.current = requestAnimationFrame(loop);
   }, [ctx, particles]);
 
@@ -85,7 +94,9 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
 
   //when the canvas ref updates, update the canvas width and height and also get the ctx reference so we can render to the canvas
   useEffect(() => {
-    const ctxRef = canvasRef.current?.getContext("2d");
+    const ctxRef = canvasRef.current?.getContext("2d", {
+      willReadFrequently: true,
+    });
     if (ctxRef && !ctx) {
       setCtx(ctxRef);
       setCanvasWidth(canvasRef.current?.offsetWidth ?? 0);
