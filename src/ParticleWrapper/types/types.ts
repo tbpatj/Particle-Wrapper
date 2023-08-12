@@ -23,6 +23,8 @@ export interface ParticleTextInput extends BasicParticleInput {
 
 export interface ParticleImageInput extends BasicParticleInput {
   image: HTMLImageElement;
+  width?: number;
+  height?: number;
 }
 
 export type EdgeInteractionMethods = "bounce" | "teleport" | "none";

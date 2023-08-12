@@ -132,8 +132,16 @@ export const renderImageToCtx = (
 ) => {
   //prep up the stamp with data we passed through, scaling, positioning, rotation.
   const { image, xPos, yPos, scaleX, scaleY } = input;
-  const iw = image.width * (scaleX ?? 1);
-  const ih = image.height * (scaleY ?? 1);
+  const aspectRatio = image.height / image.width;
+  let iw = input?.width ?? 200;
+  let ih = input?.height ?? 200;
+  if (aspectRatio < 1) {
+    iw = iw * (scaleX ?? 1);
+    ih = ih * aspectRatio * (scaleY ?? 1);
+  } else {
+    iw = (iw / aspectRatio) * (scaleX ?? 1);
+    ih = ih * (scaleY ?? 1);
+  }
   const ihw = iw / 2;
   const ihh = ih / 2;
   const xOffset = ww / 2 - ihw + (xPos ?? 0);
