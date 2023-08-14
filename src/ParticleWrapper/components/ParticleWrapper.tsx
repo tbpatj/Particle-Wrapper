@@ -1,4 +1,11 @@
-import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import {
+  createRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import useInitParticles from "../hooks/useInitParticles";
 import { ParticleInputObject } from "../types/types";
 import { renderOptimizedParticles, runParticleLoop } from "../utils/rendering";
@@ -102,6 +109,18 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
       setCanvasWidth(canvasRef.current?.offsetWidth ?? 0);
       setCanvasHeight(canvasRef.current?.offsetHeight ?? 0);
     }
+  }, [canvasRef]);
+
+  const adjustSize = () => {
+    if (canvasRef.current) {
+      setCanvasWidth(canvasRef.current?.offsetWidth ?? 0);
+      setCanvasHeight(canvasRef.current?.offsetHeight ?? 0);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", adjustSize);
+    return () => window.removeEventListener("resize", adjustSize);
   }, [canvasRef]);
 
   return (
