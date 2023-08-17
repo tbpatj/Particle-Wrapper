@@ -29,7 +29,12 @@ export interface ParticleImageInput extends BasicParticleInput {
 
 export type EdgeInteractionMethods = "bounce" | "teleport" | "none";
 
-export type MouseInteractionTypes = "none" | "drag" | "orbit" | "explode";
+export type MouseInteractionTypes =
+  | "none"
+  | "drag"
+  | "orbit"
+  | "explode"
+  | "push";
 
 export interface WrapperOptions {
   /** what percent the wrapper scans an "image" and returns back to be processed to assign particles to */

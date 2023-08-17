@@ -90,7 +90,8 @@ export const getValidInteraction = (
       type !== "explode" &&
       type === "drag" &&
       mouseMag > 0.2) ||
-    type === "orbit"
+    type === "orbit" ||
+    type === "push"
   );
 };
 
@@ -117,6 +118,23 @@ export const orbitParticleAround = (
   }
 };
 
+export const pushParticlesAround = (
+  p: Particle,
+  fieldDistanceSqrd: number = 1000,
+  intensity: number = 100,
+  packet: OrbitParticlePacket
+) => {
+  const vel = new Vector2D(
+    packet?.vector?.x ?? (packet?.point?.x ?? p.pos.x) - p.pos.x,
+    packet?.vector?.y ?? (packet?.point?.y ?? p.pos.y) - p.pos.y
+  );
+  let disSqrd = packet?.disSqrd ?? vel.x * vel.x + vel.y * vel.y;
+  if (disSqrd < fieldDistanceSqrd) {
+    p.vel.x += vel.x * (1 - disSqrd / fieldDistanceSqrd) * intensity;
+    p.vel.y += vel.y * (1 - disSqrd / fieldDistanceSqrd) * intensity;
+  }
+};
+
 export const particleInteraction = (
   p: Particle,
   mouse: MouseCursor,
@@ -127,6 +145,11 @@ export const particleInteraction = (
     dragParticle(colPacket, p, mouse, options);
   if (options.interactionType === "orbit")
     orbitParticleAround(p, options.fieldDistance, options.fieldIntensity, {
+      vector: colPacket.posToPoint,
+      disSqrd: colPacket.magSqrd,
+    });
+  if (options.interactionType === "push")
+    pushParticlesAround(p, options.fieldDistance, options.fieldIntensity, {
       vector: colPacket.posToPoint,
       disSqrd: colPacket.magSqrd,
     });
