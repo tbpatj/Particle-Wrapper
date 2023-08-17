@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { MouseCursor } from "../types/mouse";
 
 export type MouseRef = React.MutableRefObject<MouseCursor>;
@@ -7,12 +8,27 @@ export type ReactMouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
 
 interface UseMouseCursor {
   handleMouseMove: (e: ReactMouseEvent) => void;
+  handleMouseDown: (e: ReactMouseEvent) => void;
+  handleMouseUp: (e: ReactMouseEvent) => void;
 }
 
 const useMouseCursor: (
   ref: MouseRef,
   canvasRef: CanvasRef
 ) => UseMouseCursor = (ref, canvasRef) => {
+  const handleMouseUp = (e: ReactMouseEvent) => {
+    if (e.button === 0) {
+      ref.current = { ...ref.current, leftMouseDown: false };
+    } else if (e.button === 2) {
+      ref.current = { ...ref.current, rightMouseDown: false };
+    }
+  };
+  const handleMouseDown = (e: ReactMouseEvent) => {
+    if (e.button === 0) {
+      ref.current = { ...ref.current, leftMouseDown: true, leftClick: true };
+    } else if (e.button === 2)
+      ref.current = { ...ref.current, rightMouseDown: true, rightClick: true };
+  };
   const handleMouseMove = (e: ReactMouseEvent) => {
     if (canvasRef.current) {
       const now = new Date();
@@ -31,8 +47,8 @@ const useMouseCursor: (
       //get the velocity vector properties
       const magSqr = dx * dx + dy * dy;
       const mag = Math.sqrt(magSqr);
-      const nDx = dx / mag;
-      const nDy = dy / mag;
+      const nDx = mag === 0 ? mag : dx / mag;
+      const nDy = mag === 0 ? mag : dy / mag;
       ref.current = {
         ...ref.current,
         x,
@@ -49,7 +65,14 @@ const useMouseCursor: (
       } as MouseCursor;
     }
   };
-  return { handleMouseMove };
+  useEffect(() => {
+    if (ref.current.leftClick === true)
+      ref.current = { ...ref.current, leftClick: false };
+    if (ref.current.rightClick === true)
+      ref.current = { ...ref.current, rightClick: false };
+  }, [ref.current.rightClick, ref.current.leftClick]);
+
+  return { handleMouseMove, handleMouseDown, handleMouseUp };
 };
 
 export default useMouseCursor;

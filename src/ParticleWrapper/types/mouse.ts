@@ -16,7 +16,9 @@ export interface MouseCursor {
   scrollDX: number;
   scrollDY: number;
   leftMouseDown: boolean;
+  leftClick: boolean;
   rightMouseDown: boolean;
+  rightClick: boolean;
   lastRecordedTime: Date;
 }
 
@@ -34,6 +36,8 @@ export const initialMouseCursorObject = {
   scrollDX: 0,
   scrollDY: 0,
   leftMouseDown: false,
+  leftClick: false,
   rightMouseDown: false,
+  rightClick: false,
   lastRecordedTime: new Date(),
 };

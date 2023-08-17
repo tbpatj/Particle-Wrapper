@@ -21,6 +21,7 @@ import useFPS from "../hooks/useFPS";
 
 interface ParticleWrapperProps {
   input?: ParticleInputObject;
+  // initParticlePointsFunc: (width: number, height: number) => Particle;
 }
 
 const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
@@ -33,7 +34,10 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const { fpsRef, updateFPS } = useFPS();
 
-  const { handleMouseMove } = useMouseCursor(mouseRef, canvasRef);
+  const { handleMouseMove, handleMouseDown, handleMouseUp } = useMouseCursor(
+    mouseRef,
+    canvasRef
+  );
 
   const { initScene, initParticles } = useInitParticles({
     ctx,
@@ -126,6 +130,8 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
   return (
     <canvas
       onMouseMove={handleMouseMove}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       ref={canvasRef}
       style={{ width: "100%", height: "100%" }}
       width={canvasWidth + "px"}

@@ -37,7 +37,7 @@ const images: MyImage[] = [
 const particleWrapperOptions = {
   useOptimizedSmallParticles: true,
   mapParticlesToClosestPoint: false,
-  prtcleCnt: 3000,
+  prtcleCnt: 5000,
   edgeInteractionType: "bounce",
 } as WrapperOptions;
 /**TODO
@@ -72,8 +72,8 @@ function App() {
         inputs: [
           {
             image: loadedImages?.[parsedIndex].image,
-            scaleX: 1,
-            scaleY: 1,
+            scaleX: 5,
+            scaleY: 5,
           },
         ],
         options: particleWrapperOptions,

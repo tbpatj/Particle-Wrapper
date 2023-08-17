@@ -29,7 +29,7 @@ export interface ParticleImageInput extends BasicParticleInput {
 
 export type EdgeInteractionMethods = "bounce" | "teleport" | "none";
 
-export type MouseInteractionTypes = "none";
+export type MouseInteractionTypes = "none" | "drag" | "orbit" | "explode";
 
 export interface WrapperOptions {
   /** what percent the wrapper scans an "image" and returns back to be processed to assign particles to */
@@ -44,8 +44,6 @@ export interface WrapperOptions {
   prtclDstRng?: number;
   /** shuffles the particles when we render a new image, it just creates a different kind of display really, removes patterns found in the particle movement */
   shuffleUponRerender?: boolean;
-  /** enable interaction between the particles and the mouse */
-  useMouseInteraction?: boolean;
   /** use a more precise method of calculating which particles the mouse has touched, can be slightly more intensive so turn off if optimizing */
   usePreciseMouseDetection?: boolean;
   /** the distance from the cursor with which things interact */
@@ -53,6 +51,11 @@ export interface WrapperOptions {
   /** the intensity of the interaction with the mouse cursor */
   mouseInteractionFieldIntensity?: number;
   mouseInteractionType?: MouseInteractionTypes;
+  /** the distance from the cursor with which things interact when clicked */
+  mouseClickInteractionFieldDistance?: number;
+  /** the intensity of the interaction with the mouse cursor when clicked */
+  mouseClickInteractionFieldIntensity?: number;
+  mouseClickInteractionType?: MouseInteractionTypes;
   /** determines how the particles interact when they reach the edge  */
   edgeInteractionType?: EdgeInteractionMethods;
   /** how bouncy the edge is if bounce is enabled */
@@ -66,11 +69,13 @@ export interface DefaultedWrapperOptions {
   prtcleCnt: number;
   prtclDstRng: number;
   shuffleUponRerender: boolean;
-  useMouseInteraction: boolean;
   usePreciseMouseDetection: boolean;
   mouseInteractionFieldDistance: number;
   mouseInteractionFieldIntensity: number;
   mouseInteractionType: MouseInteractionTypes;
+  mouseClickInteractionFieldDistance: number;
+  mouseClickInteractionFieldIntensity: number;
+  mouseClickInteractionType: MouseInteractionTypes;
   edgeInteractionType: EdgeInteractionMethods;
   edgeRestitution: number;
 }
