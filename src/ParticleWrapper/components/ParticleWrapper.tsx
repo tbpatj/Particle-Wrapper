@@ -1,13 +1,10 @@
-import {
-  createRef,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import useInitParticles from "../hooks/useInitParticles";
-import { ParticleInputObject } from "../types/types";
+import {
+  ParticleController,
+  ParticleInputObject,
+  WrapperOptions,
+} from "../types/types";
 import { renderOptimizedParticles, runParticleLoop } from "../utils/rendering";
 import {
   DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES,
@@ -18,19 +15,23 @@ import { MouseCursor, initialMouseCursorObject } from "../types/mouse";
 import useMouseCursor from "../hooks/useMouseCursor";
 import { excludeOldMouseEntries } from "../utils/mouse";
 import useFPS from "../hooks/useFPS";
+import { ParticleQueue, checkQueueEndOfLoop } from "../utils/particleQueue";
 
 interface ParticleWrapperProps {
-  input?: ParticleInputObject;
+  controllerRef?: ParticleController;
+  options?: WrapperOptions;
   // initParticlePointsFunc: (width: number, height: number) => Particle;
 }
 
-const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
+const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ options }) => {
   const canvasRef = createRef<HTMLCanvasElement>();
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
   const animationRef = useRef(-1);
   const mouseRef = useRef<MouseCursor>(initialMouseCursorObject);
+  const particleQueue = useRef<ParticleQueue[]>([]);
+  const groups = useRef<{ [group: string]: number }>({});
   const [particles, setParticles] = useState<Particle[]>([]);
   const { fpsRef, updateFPS } = useFPS();
 
@@ -44,6 +45,8 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
     canvasWidth,
     canvasHeight,
     particles,
+    particleQueue,
+    groups,
     setParticles,
     input,
   });
@@ -64,6 +67,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
           canvasWidth,
           canvasHeight,
           mouseRef.current,
+          particleQueue.current,
           getOptionsWDefaults(input?.options)
         );
       } else {
@@ -76,6 +80,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ input }) => {
           getOptionsWDefaults(input?.options)
         );
       }
+      // checkQueueEndOfLoop(particles, particleQueue.current);
     }
     updateFPS();
     if (ctx) {

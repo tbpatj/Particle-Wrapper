@@ -65,6 +65,8 @@ export interface WrapperOptions {
   edgeInteractionType?: EdgeInteractionMethods;
   /** how bouncy the edge is if bounce is enabled */
   edgeRestitution?: number;
+  /** use particle queue */
+  useParticleQueue?: boolean;
 }
 
 export interface DefaultedWrapperOptions {
@@ -83,13 +85,14 @@ export interface DefaultedWrapperOptions {
   mouseClickInteractionType: MouseInteractionTypes;
   edgeInteractionType: EdgeInteractionMethods;
   edgeRestitution: number;
+  useParticleQueue: boolean;
 }
 
 export type ParticleInput = ParticleImageInput | ParticleTextInput;
 
-export interface ParticleInputObject {
-  /** any parameters in here modify the "stamp" used to obtain particle positions, updating this constantly may slow some processes, as this is a heavier modifier */
-  inputs?: ParticleInput[];
-  /** these options modify the particles directly, can be used for quick animations */
-  options?: WrapperOptions;
+export interface ParticleController {
+  addParticle: () => void;
+  addImageGroup: () => void;
+  addTextGroup: () => void;
+  removeGroup: () => void;
 }

@@ -1,14 +1,16 @@
 import Particle from "../classes/Particle";
 import {
+  CanvasPoint,
   ParticleImageInput,
   ParticleInput,
-  ParticleInputObject,
   ParticleTextInput,
 } from "../types/types";
 import { shuffle } from "../utils/lists";
+import { ParticleQueue, updateParticleQueue } from "../utils/particleQueue";
 import {
   DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT,
   DEFAULT_PRTCL_CNT,
+  DEFAULT_USE_PARTICLE_QUEUE,
   createParticlesList,
   getCanvasPoints,
   mapParticlesOntoClosestPoint,
@@ -22,8 +24,10 @@ interface UseInitParticlesProps {
   canvasWidth: number;
   canvasHeight: number;
   particles: Particle[];
+  particleQueue: React.MutableRefObject<ParticleQueue[]>;
+  groups: React.MutableRefObject<{ [group: string]: number }>;
   setParticles: React.Dispatch<React.SetStateAction<Particle[]>>;
-  input?: ParticleInputObject;
+  input?: ParticleInput;
 }
 
 interface UseInitParticle {
@@ -36,6 +40,8 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
   canvasWidth,
   canvasHeight,
   particles,
+  particleQueue,
+  groups,
   setParticles,
   input,
 }) => {
@@ -52,6 +58,8 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
   }
 
   function initScene() {
+    const useParticleQueue =
+      input?.options?.useParticleQueue ?? DEFAULT_USE_PARTICLE_QUEUE;
     if (ctx) {
       const ww = canvasWidth ?? 500;
       const wh = canvasHeight ?? 500;
@@ -86,24 +94,36 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
             wh,
             input.options?.resolutionPercent
           );
+
           //if we want to shuffle the particles to remove patterns that appear due to the particles being in the same position in the list then do so here
           if (input.options?.shuffleUponRerender)
             particles = shuffle(particles);
-          //choose which mapping method we want to use and map the particles to the points
-          if (
-            input.options?.mapParticlesToClosestPoint ??
-            DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT
-          ) {
-            particles = mapParticlesOntoClosestPoint(
-              particles,
-              points,
-              input.options
-            );
+          if (!useParticleQueue) {
+            //choose which mapping method we want to use and map the particles to the points
+            if (
+              input.options?.mapParticlesToClosestPoint ??
+              DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT
+            ) {
+              particles = mapParticlesOntoClosestPoint(
+                particles,
+                points,
+                input.options
+              );
+            } else {
+              particles = mapParticlesOntoPoints(
+                particles,
+                points,
+                input.options
+              );
+            }
           } else {
-            particles = mapParticlesOntoPoints(
-              particles,
+            updateParticleQueue(
               points,
-              input.options
+              particleQueue.current,
+              groups.current,
+              input.options?.prtcleCnt ?? DEFAULT_PRTCL_CNT,
+              "test",
+              4000
             );
           }
           return;
@@ -113,6 +133,7 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
       for (let i = 0; i < particles.length; i++) {
         particles[i].dest = undefined;
       }
+      particleQueue.current = [];
     }
   }
 

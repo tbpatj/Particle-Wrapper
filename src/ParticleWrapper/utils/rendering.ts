@@ -2,6 +2,11 @@ import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
 import { MouseCursor } from "../types/mouse";
 import { DefaultedWrapperOptions, WrapperOptions } from "../types/types";
+import {
+  ParticleQueue,
+  checkParticleAgainstQueueDis,
+  assignParticleQueue,
+} from "./particleQueue";
 var test = 0;
 
 //create a image array and then map through the particles and update the array values with the pixels. This is really efficient for small particles. But as soon as the particles get bigger it bogs down due to not utilizing other optimiaztion techniques
@@ -11,6 +16,7 @@ export const renderOptimizedParticles = (
   canvasWidth: number,
   canvasHeight: number,
   mouse: MouseCursor,
+  queue: ParticleQueue[],
   options: DefaultedWrapperOptions
 ) => {
   let b: Uint8ClampedArray,
@@ -82,6 +88,10 @@ export const renderOptimizedParticles = (
   for (let i = 0; i < particles.length; i++) {
     const p: Particle = particles[i];
     p.updateParticle(mouse, canvasWidth, canvasHeight, options);
+    if (!p.dest) {
+      // checkParticleAgainstQueue(p, i, queue);
+      assignParticleQueue(p, queue);
+    }
     if (
       p.pos.x + 5 < canvasWidth &&
       p.pos.y < canvasHeight &&

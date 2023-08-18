@@ -36,6 +36,7 @@ class Particle {
   vel: Vector2D;
   color: ColorRGB;
   toColor: ColorRGB | undefined;
+  group?: string;
   size: number;
   speed: number;
   resistence: number;
@@ -62,6 +63,7 @@ class Particle {
     this.speed = speed;
     this.size = size;
     this.resistence = resistence;
+    this.group = undefined;
     //perhaps this isn't the most efficient way to store this data
     this.renderCallback = renderCallback;
   }
