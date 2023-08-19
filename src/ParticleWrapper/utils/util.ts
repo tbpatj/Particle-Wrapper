@@ -7,7 +7,13 @@ import {
   EdgeInteractionMethods,
   MouseInteractionTypes,
   ParticleImageInput,
+  ParticleInput,
   ParticleTextInput,
+  ParticleWrapperColorPattern,
+  ParticleWrapperConicGradient,
+  ParticleWrapperGradient,
+  ParticleWrapperLinearGradient,
+  ParticleWrapperRadialGradient,
   WrapperOptions,
 } from "../types/types";
 
@@ -139,6 +145,7 @@ export const renderImageToCtx = (
   ww: number,
   wh: number
 ) => {
+  ctx.save();
   //prep up the stamp with data we passed through, scaling, positioning, rotation.
   const { image, xPos, yPos, scaleX, scaleY } = input;
   const aspectRatio = image.height / image.width;
@@ -153,10 +160,131 @@ export const renderImageToCtx = (
   }
   const ihw = iw / 2;
   const ihh = ih / 2;
-  const xOffset = ww / 2 - ihw + (xPos ?? 0);
-  const yOffset = wh / 2 - ihh + (yPos ?? 0);
+  if (input.filter) ctx.filter = input.filter;
+  adjustRenderPosition(ctx, input, ww, wh, ihw, ihh);
   //stamp the image onto the canvas
-  ctx.drawImage(image, xOffset, yOffset, iw, ih);
+  ctx.drawImage(image, 0, 0, iw, ih);
+  ctx.restore();
+};
+
+const createLinearGradient = (
+  ctx: CanvasRenderingContext2D,
+  grad: ParticleWrapperLinearGradient
+) => {
+  const gradient = ctx.createLinearGradient(grad.x0, grad.y0, grad.x1, grad.y1);
+  for (let i = 0; i < grad.stops.length; i++) {
+    const stop = grad.stops[i];
+    gradient.addColorStop(stop.offset, stop.color);
+  }
+  return gradient;
+};
+
+const createRadialGradient = (
+  ctx: CanvasRenderingContext2D,
+  grad: ParticleWrapperRadialGradient
+) => {
+  const gradient = ctx.createRadialGradient(
+    grad.x0,
+    grad.y0,
+    grad.r0,
+    grad.x1,
+    grad.y1,
+    grad.r1
+  );
+  for (let i = 0; i < grad.stops.length; i++) {
+    const stop = grad.stops[i];
+    gradient.addColorStop(stop.offset, stop.color);
+  }
+  return gradient;
+};
+
+const createConicGradient = (
+  ctx: CanvasRenderingContext2D,
+  grad: ParticleWrapperConicGradient
+) => {
+  const gradient = ctx.createConicGradient(grad.startAngle, grad.x, grad.y);
+  for (let i = 0; i < grad.stops.length; i++) {
+    const stop = grad.stops[i];
+    gradient.addColorStop(stop.offset, stop.color);
+  }
+  return gradient;
+};
+
+const createPattern = (
+  ctx: CanvasRenderingContext2D,
+  pattern: ParticleWrapperColorPattern
+) => {
+  if (pattern.image) {
+    const canvasPattern = ctx.createPattern(pattern.image, pattern.repetition);
+    if (canvasPattern) ctx.fillStyle = canvasPattern;
+  }
+};
+
+const getFillStyle = (ctx: CanvasRenderingContext2D, input: ParticleInput) => {
+  if ((input.color as ParticleWrapperColorPattern)?.image) {
+    createPattern(ctx, input.color as ParticleWrapperColorPattern);
+  } else if ((input?.color as ParticleWrapperGradient)?.stops) {
+    if ((input?.color as ParticleWrapperRadialGradient)?.r0 !== undefined)
+      ctx.fillStyle = createRadialGradient(
+        ctx,
+        input.color as ParticleWrapperRadialGradient
+      );
+    else if (
+      (input?.color as ParticleWrapperConicGradient)?.startAngle !== undefined
+    )
+      ctx.fillStyle = createConicGradient(
+        ctx,
+        input.color as ParticleWrapperConicGradient
+      );
+    else
+      ctx.fillStyle = createLinearGradient(
+        ctx,
+        input.color as ParticleWrapperLinearGradient
+      );
+  } else {
+    ctx.fillStyle = `rgba(${Math.round(Math.random() * 255)},${Math.round(
+      Math.random() * 255
+    )},${Math.round(Math.random() * 255)},${Math.random() * 0.25 + 0.75})`;
+  }
+};
+
+const getRenderPos = (
+  input: ParticleInput,
+  ww: number,
+  wh: number,
+  ihw?: number,
+  ihh?: number
+) => {
+  let xOffset = ww / 2 - (ihw ?? 0);
+  if (input?.xPos && input?.xPos?.includes("%")) {
+    const percent = parseFloat(input?.xPos?.split("%")[0]);
+    if (!isNaN(percent)) xOffset = (ww + (ihw ?? 0)) * (percent / 100);
+  } else if (input?.xPos) {
+    const pxl = parseFloat(input?.xPos);
+    if (!isNaN(pxl)) xOffset = pxl;
+  }
+  let yOffset = wh / 2 - (ihh ?? 0);
+  if (input?.yPos?.includes("%")) {
+    const percent = parseFloat(input?.yPos?.split("%")[0]);
+    if (!isNaN(percent)) yOffset = (wh + (ihh ?? 0)) * (percent / 100);
+  } else if (input?.yPos) {
+    const pxl = parseFloat(input?.yPos);
+    if (!isNaN(pxl)) yOffset = pxl;
+  }
+  return { xOffset, yOffset };
+};
+
+const adjustRenderPosition = (
+  ctx: CanvasRenderingContext2D,
+  input: ParticleInput,
+  ww: number,
+  wh: number,
+  ihw?: number,
+  ihh?: number
+) => {
+  const { xOffset, yOffset } = getRenderPos(input, ww, wh, ihw, ihh);
+  ctx.translate(xOffset, yOffset);
+  if (input.rotDeg) ctx.rotate((input.rotDeg * Math.PI) / 180);
 };
 
 //stamp some text on the canvas then get the image data so we can afterward iterate through the pixels and find the image
@@ -166,18 +294,18 @@ export const renderTextToCtx = (
   ww: number,
   wh: number
 ) => {
+  ctx.save();
   //apply the font and style of text we want
-  ctx.font = "bold " + (input.fontSize ?? 70) + "px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillStyle = `rgba(${Math.round(Math.random() * 255)},${Math.round(
-    Math.random() * 255
-  )},${Math.round(Math.random() * 255)},${Math.random() * 0.25 + 0.75})`;
+  ctx.font = `${input?.fontWeight ?? "bold"} ${input?.fontSize ?? `70px`} ${
+    input?.font ?? "sans-serif"
+  }`;
+  ctx.textAlign = input?.align ?? "center";
+  if (input.filter) ctx.filter = input.filter;
+  getFillStyle(ctx, input);
+  adjustRenderPosition(ctx, input, ww, wh);
   //stamp the text onto the canvas
-  ctx.fillText(
-    input.text,
-    ww / 2 + (input?.xPos ?? 0),
-    wh / 2 + (input?.yPos ?? 0)
-  );
+  ctx.fillText(input.text, 0, 0);
+  ctx.restore();
 };
 
 //after we have gathered the points in which we should put particles we need to tell the particles to go to those points here is where we do that

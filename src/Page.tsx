@@ -27,15 +27,25 @@ const images: MyImage[] = [
   { src: "/person4.png" },
 ];
 
-const words = ["Hi", "My Name Is", "Timothy Luebke", "Developer", "4"];
-const time = [2000, 2000, 2500, 4000, 4000];
+const words = [
+  "1",
+  "My Name Is",
+  "Timothy Luebke",
+  "1,",
+  "Computer Engineer,",
+  "Husband,",
+];
+const time = [1300, 2000, 2500, 2000, 2000];
 
 const Page: React.FC = () => {
   const controllerRef = useRef<ParticleController>(initialParticleController);
   /**TODO
    * finish up the ability to change colors on a text even maybe gradients
    * finish up other attributes to add to a image before it scans it
+   * figure out something better for reszing
    * option to restrain particles to the destination, so when I'm doing quick things like an explosion I can make the particles not stick to the destination. Just basically stun them temporarily
+   * create particle actions, like how I can now add a image through the controller. Make it so I can move a group up 50, or rotate a group 30 deg, or create an action to blow particles away breifly
+   * create interaction creator in the particle controller. a way to add forces throughout like wind or orbits
    */
   const { currentWord, startWordTimer } = useWordInterval({
     words,
@@ -55,7 +65,8 @@ const Page: React.FC = () => {
               image: loadedImages[indx].image,
               scaleX: 3,
               scaleY: 3,
-              xPos: -500,
+              align: "left",
+              xPos: "100",
             } as ParticleImageInput,
           ],
           "start",
@@ -68,8 +79,10 @@ const Page: React.FC = () => {
               text: currentWord,
               // scaleX: 3,
               // scaleY: 3,
-              font: "Inter",
-              xPos: -500,
+              fontSize: "3vw",
+              align: "left",
+              xPos: "10%",
+              yPos: "50%",
             } as ParticleTextInput,
           ],
           "start",
@@ -82,7 +95,7 @@ const Page: React.FC = () => {
   const onInitalized = () => {
     startWordTimer();
     controllerRef.current.addInputGroup(
-      [{ text: currentWord, xPos: -500 } as ParticleTextInput],
+      [{ text: currentWord, xPos: "10%" } as ParticleTextInput],
       "start",
       2000,
       { teleportParticlesToDest: true }

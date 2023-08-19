@@ -23,7 +23,8 @@ const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({
 
   //create a timeout function based on the time/s provided
   const createTimeout = () => {
-    const timeoutTime = typeof time === "number" ? time : time[index];
+    const timeoutTime =
+      typeof time === "number" ? time : time?.[index] ?? time[time.length - 1];
     timerRef.current = setTimeout(() => {
       setIndex((indx) => {
         if (indx >= words.length - 1) return 0;

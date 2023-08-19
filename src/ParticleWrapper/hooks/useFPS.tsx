@@ -18,7 +18,9 @@ const useFPS = () => {
   const updateFPS = () => {
     if (fpsRef.current.lastFrameTime !== 0) {
       const frameTime = performance.now();
-      let fps = 1 / ((frameTime - fpsRef.current.lastFrameTime) / 1000);
+      const lapsedTime =
+        (frameTime - fpsRef.current.lastFrameTime) / 1000 || 0.000001;
+      let fps = 1 / lapsedTime;
       fpsRef.current.calculatingFPS = fpsRef.current.calculatingFPS + fps;
     }
     fpsRef.current.lastFrameTime = performance.now();
