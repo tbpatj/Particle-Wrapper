@@ -6,7 +6,10 @@ interface ColorConstructor {
 }
 
 const shfflClr = (currentVal: number, range: number) => {
-  return Math.min(Math.max(~~(currentVal + Math.random() * (range / 2) - range / 2)), 255);
+  return Math.min(
+    Math.max(~~(currentVal + Math.random() * (range / 2) - range / 2)),
+    255
+  );
 };
 
 class ColorRGB {
@@ -27,7 +30,12 @@ class ColorRGB {
   }
 
   toObjectWNoise(mod: number) {
-    return { R: shfflClr(this.R, mod), G: shfflClr(this.G, mod), B: shfflClr(this.B, mod), A: this.A };
+    return {
+      R: shfflClr(this.R, mod),
+      G: shfflClr(this.G, mod),
+      B: shfflClr(this.B, mod),
+      A: this.A,
+    };
   }
 
   toString() {
@@ -38,7 +46,7 @@ class ColorRGB {
     this.R = c.R + (this.R - c.R) * mul;
     this.G = c.G + (this.G - c.G) * mul;
     this.B = c.B + (this.B - c.B) * mul;
-    this.A = c.A + (this.A - c.A) * mul;
+    if (c.A !== this.A) this.A = c.A + (this.A - c.A) * mul;
   }
 }
 

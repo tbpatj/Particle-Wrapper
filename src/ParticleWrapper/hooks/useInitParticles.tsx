@@ -111,7 +111,7 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
             if (groups.current[group]) {
               removeGroups.current[group] = "reset";
             }
-            updateParticleQueue(
+            const newQueue = updateParticleQueue(
               points,
               particleQueue.current,
               groups.current,
@@ -120,6 +120,7 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
               prtclCount,
               inputOptions
             );
+            particleQueue.current = particleQueue.current.concat(newQueue);
             // console.log("new queue", particleQueue.current);
           }
         }

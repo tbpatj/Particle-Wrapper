@@ -25,6 +25,7 @@ export const updateParticleQueue = (
   queuedAmt: number,
   options?: AddInputGroupOptions
 ) => {
+  const newQueue: ParticleQueue[] = [];
   let particlesQueued = 0;
   for (const group in groups) {
     if (group !== groupName) particlesQueued += groups[group];
@@ -42,19 +43,21 @@ export const updateParticleQueue = (
         randomize = index + randomize - points.length - 1;
       if (index + randomize < 0) randomize = 0;
       const point = points?.[index + randomize];
-      particleQueue.push({
+      if (point.color.A < 255) point.color.A = 255;
+      newQueue.push({
         dest: new Vector2D(
           point.pos.x + Math.random() * 2 - 1,
           point.pos.y + Math.random() * 2 - 1
         ),
         color: point.color,
         group: groupName,
-        size: 3,
+        size: 2,
         teleportParticlesToDest: options?.teleportParticlesToDest,
       });
     }
-    shuffle(particleQueue);
+    shuffle(newQueue);
   }
+  return newQueue;
 };
 
 export const checkParticleAgainstQueueDis = (
@@ -86,13 +89,15 @@ export const checkParticleAgainstQueueDis = (
 };
 
 export const assignParticleQueue = (p: Particle, queue: ParticleQueue[]) => {
-  if (queue.length > 0) {
+  if ((queue.length > 0 && !p?.group) || p?.group === queue?.[0]?.group) {
     p.dest = queue[0].dest;
     p.toColor = queue[0].color;
     p.group = queue[0].group;
     p.size = queue[0].size ?? p.size;
-    if (queue[0].teleportParticlesToDest)
+    if (queue[0].teleportParticlesToDest) {
       p.pos = new Vector2D(p.dest.x, p.dest.y);
+      p.vel = new Vector2D(0, 0);
+    }
     queue.splice(0, 1);
   }
 };

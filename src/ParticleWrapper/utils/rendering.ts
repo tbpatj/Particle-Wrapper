@@ -81,9 +81,9 @@ const fillCircleAlgorithm = (
 
     x++;
   }
-  // console.log(x);
-  for (let t = 0; t < x; t++) {
-    for (let j = 0; j < x; j++) {
+  const max = radius > 5 ? 1 : 0;
+  for (let t = 0; t < x - max; t++) {
+    for (let j = 0; j < x - max; j++) {
       updtPxl(dPxlA(rPxlA(pxlN, -t), j), c.R, c.G, c.B, c.A);
       if (j !== 0) updtPxl(dPxlA(rPxlA(pxlN, -t), -j), c.R, c.G, c.B, c.A);
       if (t !== 0) updtPxl(dPxlA(rPxlA(pxlN, t), j), c.R, c.G, c.B, c.A);
@@ -120,11 +120,15 @@ export const renderOptimizedParticles = (
   const updatePxl = (n: number, R: number, G: number, B: number, A: number) => {
     if (n > 0 && n < length) {
       //blend the previous alpha value with this new alpha value
-      const a0 = (255 - b[n + 3]) * (A / 255) + b[n + 3];
-      b[n + 3] = a0;
-      b[n] = R;
-      b[n + 1] = G;
-      b[n + 2] = B;
+      if (b[n + 3] !== 255) {
+        if (A !== 255) {
+          const a0 = (255 - b[n + 3]) * (A / 255) + b[n + 3];
+          b[n + 3] = a0;
+        } else b[n + 3] = 255;
+        b[n] = R;
+        b[n + 1] = G;
+        b[n + 2] = B;
+      }
     }
   };
   //pre-calculate the number needed to go to the right that way we don't calculate it in every loop
@@ -145,7 +149,7 @@ export const renderOptimizedParticles = (
     p.updateParticle(mouse, canvasWidth, canvasHeight, options);
     if (p.group && removeGroups[p.group]) {
       p.dest = undefined;
-      p.group = undefined;
+      if (removeGroups[p.group] !== "reset") p.group = undefined;
       p.size = 0.5;
     }
     if (!p.dest && queue.length > 0) {
