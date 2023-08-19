@@ -2,12 +2,97 @@ import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
 import { MouseCursor } from "../types/mouse";
 import { DefaultedWrapperOptions, WrapperOptions } from "../types/types";
-import {
-  ParticleQueue,
-  checkParticleAgainstQueueDis,
-  assignParticleQueue,
-} from "./particleQueue";
+import { ParticleQueue, assignParticleQueue } from "./particleQueue";
 var test = 0;
+let d = 0;
+let pxlN = 0;
+const outlineCircleAlgorithm = (
+  centerX: number,
+  centerY: number,
+  radius: number,
+  canvasWidth: number,
+  rPxl: (n: number) => number,
+  rPxlA: (n: number, A: number) => number,
+  dPxl: (n: number) => number,
+  dPxlA: (n: number, A: number) => number,
+  updtPxl: (n: number, R: number, G: number, B: number, A: number) => void,
+  c: ColorRGB
+) => {
+  d = (5 - radius * 4) / 4;
+  let x = 0;
+  let y = radius;
+  pxlN = (~~centerX + ~~centerY * canvasWidth) * 4;
+  // pxlN = (~~(x + centerX) + ~~(-y + centerY) * canvasWidth) * 4;
+  for (x = 0; x <= y; x++) {
+    // updtPxl(pxlN, 0, 0, 0, 255);
+    updtPxl(dPxlA(rPxlA(pxlN, x), y), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, x), -y), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, -x), y), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, -x), -y), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, y), x), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, y), -x), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, -y), x), c.R, c.G, c.B, c.A);
+    updtPxl(dPxlA(rPxlA(pxlN, -y), -x), c.R, c.G, c.B, c.A);
+    if (d <= 0) {
+      d += 2 * x + 1;
+    } else {
+      d += 2 * (x - y) + 1;
+      y--;
+    }
+  }
+};
+
+const fillCircleAlgorithm = (
+  centerX: number,
+  centerY: number,
+  radius: number,
+  canvasWidth: number,
+  rPxl: (n: number) => number,
+  rPxlA: (n: number, A: number) => number,
+  dPxl: (n: number) => number,
+  dPxlA: (n: number, A: number) => number,
+  updtPxl: (n: number, R: number, G: number, B: number, A: number) => void,
+  c: ColorRGB
+) => {
+  let x = 0;
+  let y = radius;
+  let p = (5 - radius * 4) / 4;
+  pxlN = (~~centerX + ~~centerY * canvasWidth) * 4;
+  while (x < y) {
+    for (let j = 0; j <= x; j++) {
+      updtPxl(dPxlA(rPxlA(pxlN, j), y), c.R, c.G, c.B, c.A);
+      updtPxl(dPxlA(rPxlA(pxlN, j), -y), c.R, c.G, c.B, c.A);
+      if (j !== 0) {
+        updtPxl(dPxlA(rPxlA(pxlN, -j), y), c.R, c.G, c.B, c.A);
+        updtPxl(dPxlA(rPxlA(pxlN, -j), -y), c.R, c.G, c.B, c.A);
+
+        updtPxl(dPxlA(rPxlA(pxlN, y), j), c.R, c.G, c.B, c.A);
+        updtPxl(dPxlA(rPxlA(pxlN, -y), -j), c.R, c.G, c.B, c.A);
+      }
+      updtPxl(dPxlA(rPxlA(pxlN, y), -j), c.R, c.G, c.B, c.A);
+      updtPxl(dPxlA(rPxlA(pxlN, -y), j), c.R, c.G, c.B, c.A);
+    }
+    if (p < 0) {
+      p += 2 * x + 1;
+    } else {
+      p += 2 * (x - y) + 1;
+      y--;
+    }
+
+    x++;
+  }
+  // console.log(x);
+  for (let t = 0; t < x; t++) {
+    for (let j = 0; j < x; j++) {
+      updtPxl(dPxlA(rPxlA(pxlN, -t), j), c.R, c.G, c.B, c.A);
+      if (j !== 0) updtPxl(dPxlA(rPxlA(pxlN, -t), -j), c.R, c.G, c.B, c.A);
+      if (t !== 0) updtPxl(dPxlA(rPxlA(pxlN, t), j), c.R, c.G, c.B, c.A);
+      if (j !== 0 && t !== 0) {
+        updtPxl(dPxlA(rPxlA(pxlN, t), -j), c.R, c.G, c.B, c.A);
+      }
+    }
+  }
+};
 
 //create a image array and then map through the particles and update the array values with the pixels. This is really efficient for small particles. But as soon as the particles get bigger it bogs down due to not utilizing other optimiaztion techniques
 export const renderOptimizedParticles = (
@@ -45,44 +130,12 @@ export const renderOptimizedParticles = (
   //pre-calculate the number needed to go to the right that way we don't calculate it in every loop
   const canvasWMul = canvasWidth * 4;
   //get the next pixel to the right
-  const rPxl = (n: number) => n + canvasWMul;
+  const rPxl = (n: number) => n + 4;
+  const rPxlA = (n: number, A: number) => n + 4 * A;
   //get the next pixel downward
-  const dPxl = (n: number) => n - 4;
+  const dPxl = (n: number) => n + canvasWMul;
+  const dPxlA = (n: number, A: number) => n + canvasWMul * A;
   //create a circle filling function, we get an index then fill the indecies around it to create what resembles a circle
-  const fillCircle = (n: number, radius: number, color: ColorRGB) => {
-    //the circles look better when at iteratives .5 than at whole numbers
-    radius += 0.5;
-    //pre calculate values
-    const diameter = radius * 2;
-    const radSqr = radius * radius;
-    //find a pixel in the corner and we will iterate through a square bound of pixels back to create the circle
-    n1 = n - canvasWMul * Math.round(radius) + 4 * Math.round(radius);
-    n2 = n1;
-    //iterate through one axis
-    for (let i = 0; i <= diameter; i++) {
-      n1 = dPxl(n1);
-      n2 = n1;
-      //iterate through perpendicular axis
-      for (let t = 0; t <= diameter; t++) {
-        const x = i - ~~radius;
-        const y = t - ~~radius;
-        n2 = rPxl(n2);
-        //calculate the pixels squared distance to the center of the circle
-        const mag = x * x + y * y;
-        //if the squared distance is less than the squared radius then its in the circle
-        if (mag < radSqr) {
-          updatePxl(
-            n2,
-            color.R,
-            color.G,
-            color.B,
-            //create a sort of anitaliasing so the circle doesn't look so harsh or like squares for some.
-            Math.min(color.A * (radius / mag), 255)
-          );
-        }
-      }
-    }
-  };
 
   //-------------- iterate through pixels and actually render ----------------
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -109,8 +162,22 @@ export const renderOptimizedParticles = (
       n1 = n;
       n2 = n1;
       // updatePxl(n1, p.color.R, p.color.G, p.color.B, p.color.A);
-      if (p.size > 0.9) fillCircle(n, p.size, p.color);
+      // if (p.size > 0.9) fillCircle(n, p.size, p.color);
+      if (p.size > 0.5)
+        fillCircleAlgorithm(
+          p.pos.x,
+          p.pos.y,
+          p.size,
+          canvasWidth,
+          rPxl,
+          rPxlA,
+          dPxl,
+          dPxlA,
+          updatePxl,
+          p.color
+        );
       else updatePxl(n1, p.color.R, p.color.G, p.color.B, p.color.A);
+      // updatePxl(n1, p.color.R, p.color.G, p.color.B, p.color.A);
     }
   }
   ctx.putImageData(a, 0, 0);
