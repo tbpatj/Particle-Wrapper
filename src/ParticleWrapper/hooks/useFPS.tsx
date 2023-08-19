@@ -31,7 +31,18 @@ const useFPS = () => {
       fpsRef.current.frames = 0;
     }
   };
-  return { updateFPS, fpsRef };
+
+  const renderFPSOnCanvas = (ctx: CanvasRenderingContext2D) => {
+    if (ctx) {
+      ctx.font = "bold " + 16 + "px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillStyle = "black";
+      //stamp the text onto the canvas
+      ctx.fillText(`${fpsRef.current.fps} FPS`, 10, 30);
+    }
+  };
+
+  return { updateFPS, fpsRef, renderFPSOnCanvas };
 };
 
 export default useFPS;

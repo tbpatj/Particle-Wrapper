@@ -23,8 +23,8 @@ export const DEFAULT_MOUSE_INTERACTION_FIELD_DISTANCE = 10000;
 export const DEFAULT_MOUSE_INTERACTION_FIELD_INTENSITY = 10;
 export const DEFAULT_MOUSE_INTERACTION_TYPE: MouseInteractionTypes = "drag";
 export const DEFAULT_MOUSE_CLICK_INTERACTION_TYPE: MouseInteractionTypes =
-  "push";
-export const DEFAULT_MOUSE_CLICK_INTERACTION_FIELD_DISTANCE = 10000;
+  "orbit";
+export const DEFAULT_MOUSE_CLICK_INTERACTION_FIELD_DISTANCE = 100000;
 export const DEFAULT_MOUSE_CLICK_INTERACTION_FIELD_INTENSITY = 0.008;
 export const DEFAULT_EDGE_INTERACTION_TYPE: EdgeInteractionMethods = "teleport";
 export const DEFAULT_EDGE_RESTITUTION = 0.8;
@@ -67,7 +67,7 @@ export const createParticlesList = (
     const randY = Math.random() * wh;
     const randVelX = Math.random() * 1 - 0.5;
     const randVelY = Math.random() * 1 - 0.5;
-    const size = Math.random() * 0 + 1;
+    const size = Math.random() * 0 + 0.5;
     particles.push(
       new Particle({ x: randX, y: randY, xVel: randVelX, yVel: randVelY, size })
     );

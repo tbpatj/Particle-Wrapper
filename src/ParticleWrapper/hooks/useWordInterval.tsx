@@ -29,7 +29,7 @@ const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({
         if (indx >= words.length - 1) return 0;
         return indx + 1;
       });
-    }, 2000);
+    }, timeoutTime);
   };
 
   const startWordTimer = () => {
@@ -50,7 +50,6 @@ const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({
 
   //when words or time is changed, just destroy the current timeout and set the index back to 0 so we start again from the beginning
   useEffect(() => {
-    setIndex(0);
     destroyTimeout();
   }, [words, time]);
 

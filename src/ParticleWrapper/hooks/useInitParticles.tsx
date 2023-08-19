@@ -1,6 +1,8 @@
 import Particle from "../classes/Particle";
 import {
-  CanvasPoint,
+  AddInputGroupFunc,
+  AddInputGroupOptions,
+  DefaultedWrapperOptions,
   ParticleImageInput,
   ParticleInput,
   ParticleTextInput,
@@ -8,9 +10,6 @@ import {
 import { shuffle } from "../utils/lists";
 import { ParticleQueue, updateParticleQueue } from "../utils/particleQueue";
 import {
-  DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT,
-  DEFAULT_PRTCL_CNT,
-  DEFAULT_USE_PARTICLE_QUEUE,
   createParticlesList,
   getCanvasPoints,
   mapParticlesOntoClosestPoint,
@@ -21,123 +20,114 @@ import {
 
 interface UseInitParticlesProps {
   ctx: CanvasRenderingContext2D | undefined;
-  canvasWidth: number;
-  canvasHeight: number;
-  particles: Particle[];
+  ww: number;
+  wh: number;
+  particles: React.MutableRefObject<Particle[]>;
   particleQueue: React.MutableRefObject<ParticleQueue[]>;
   groups: React.MutableRefObject<{ [group: string]: number }>;
-  setParticles: React.Dispatch<React.SetStateAction<Particle[]>>;
-  input?: ParticleInput;
+  removeGroups: React.MutableRefObject<{ [group: string]: string }>;
+  options: DefaultedWrapperOptions;
 }
 
 interface UseInitParticle {
-  initScene: () => void;
+  addParticleInputs: AddInputGroupFunc;
   initParticles: () => void;
 }
 
 const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
   ctx,
-  canvasWidth,
-  canvasHeight,
+  ww,
+  wh,
   particles,
   particleQueue,
   groups,
-  setParticles,
-  input,
+  removeGroups,
+  options,
 }) => {
   function initParticles() {
-    const ww = canvasWidth || window.innerWidth;
-    const wh = canvasHeight || window.innerHeight;
-    setParticles(
-      createParticlesList(
-        input?.options?.prtcleCnt ?? DEFAULT_PRTCL_CNT,
-        ww,
-        wh
-      )
-    );
+    particles.current = createParticlesList(options.prtcleCnt, ww, wh);
   }
 
-  function initScene() {
-    const useParticleQueue =
-      input?.options?.useParticleQueue ?? DEFAULT_USE_PARTICLE_QUEUE;
+  const updateCTXForProcessing = (inputs: ParticleInput[]) => {
+    let renderedToCanvas = false;
     if (ctx) {
-      const ww = canvasWidth ?? 500;
-      const wh = canvasHeight ?? 500;
-      if (input) {
-        ctx.clearRect(0, 0, ww, wh);
-        let renderedToCanvas: boolean = false;
-
-        //iterate through all of the inputs passed in and render them to the canvas
-        for (let l = 0; l < (input?.inputs?.length ?? 0); l++) {
-          const renderTask: any | undefined = input?.inputs?.[l] ?? undefined;
-          //if the user wants text to be the thing that particles show then get the positions from text
-          if (renderTask?.text) {
-            const inputOptions = renderTask as ParticleTextInput;
-            renderTextToCtx(inputOptions, ctx, ww, wh);
-            renderedToCanvas = true;
-          }
+      ctx.clearRect(0, 0, ww, wh);
+      for (let l = 0; l < inputs.length; l++) {
+        const renderTask: any = inputs[l];
+        //if the user wants text to be the thing that particles show then get the positions from text
+        if (renderTask?.text) {
+          const input = renderTask as ParticleTextInput;
+          renderTextToCtx(input, ctx, ww, wh);
+          renderedToCanvas = true;
           //if the user wants an image to be the thing we render
-          if (renderTask?.image) {
-            const inputOptions = renderTask as ParticleImageInput;
-            renderImageToCtx(inputOptions, ctx, ww, wh);
-            renderedToCanvas = true;
-          }
+        } else if (renderTask?.image) {
+          const input = renderTask as ParticleImageInput;
+          renderImageToCtx(input, ctx, ww, wh);
+          renderedToCanvas = true;
         }
-        //if we rendered anything the canvas get that and convert it into particle points then assign the particles
+      }
+    }
+    return renderedToCanvas;
+  };
+
+  const addParticleInputs = (
+    inputs: ParticleInput[],
+    group: string,
+    prtclCount: number,
+    inputOptions?: AddInputGroupOptions
+  ) => {
+    if (ctx) {
+      if (inputs.length > 0) {
+        //iterate through all of the inputs passed in and render them to the canvas
+        const renderedToCanvas = updateCTXForProcessing(inputs);
         if (renderedToCanvas) {
-          //get the raw data of the image array
           const image = ctx.getImageData(0, 0, ww, wh).data;
           ctx.clearRect(0, 0, ww, wh);
           const points = getCanvasPoints(
             image,
             ww,
             wh,
-            input.options?.resolutionPercent
+            options.resolutionPercent
           );
 
-          //if we want to shuffle the particles to remove patterns that appear due to the particles being in the same position in the list then do so here
-          if (input.options?.shuffleUponRerender)
-            particles = shuffle(particles);
-          if (!useParticleQueue) {
+          if (options.shuffleUponRerender)
+            particles.current = shuffle(particles.current);
+          if (!options.useParticleQueue) {
             //choose which mapping method we want to use and map the particles to the points
-            if (
-              input.options?.mapParticlesToClosestPoint ??
-              DEFAULT_MAP_PARTICLES_TO_CLOSEST_POINT
-            ) {
-              particles = mapParticlesOntoClosestPoint(
-                particles,
+            if (options.mapParticlesToClosestPoint) {
+              particles.current = mapParticlesOntoClosestPoint(
+                particles.current,
                 points,
-                input.options
+                options
               );
             } else {
-              particles = mapParticlesOntoPoints(
-                particles,
+              particles.current = mapParticlesOntoPoints(
+                particles.current,
                 points,
-                input.options
+                options
               );
             }
           } else {
+            if (groups.current[group]) {
+              removeGroups.current[group] = "reset";
+            }
             updateParticleQueue(
               points,
               particleQueue.current,
               groups.current,
-              input.options?.prtcleCnt ?? DEFAULT_PRTCL_CNT,
-              "test",
-              4000
+              options.prtcleCnt,
+              group,
+              prtclCount,
+              inputOptions
             );
+            // console.log("new queue", particleQueue.current);
           }
-          return;
         }
       }
-      //if we aren't mapping particles to points, then just update the destination to undefined so the particles float freely
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].dest = undefined;
-      }
-      particleQueue.current = [];
     }
-  }
+  };
 
-  return { initScene, initParticles };
+  return { addParticleInputs, initParticles };
 };
 
 export default useInitParticles;

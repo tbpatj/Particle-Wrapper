@@ -13,6 +13,7 @@ interface BasicParticleInput {
   rotDeg?: number;
   scaleX?: number;
   scaleY?: number;
+  teleportParticlesToDest?: boolean;
 }
 
 export interface ParticleTextInput extends BasicParticleInput {
@@ -90,9 +91,25 @@ export interface DefaultedWrapperOptions {
 
 export type ParticleInput = ParticleImageInput | ParticleTextInput;
 
+export interface AddInputGroupOptions {
+  teleportParticlesToDest?: boolean;
+}
+
+export type AddInputGroupFunc = (
+  inputs: ParticleInput[],
+  group: string,
+  prtclCount: number,
+  inputOptions?: AddInputGroupOptions
+) => void;
+
 export interface ParticleController {
   addParticle: () => void;
-  addImageGroup: () => void;
-  addTextGroup: () => void;
-  removeGroup: () => void;
+  addInputGroup: AddInputGroupFunc;
+  ready: boolean;
 }
+
+export const initialParticleController: ParticleController = {
+  addParticle: () => {},
+  addInputGroup: (inputs: ParticleInput[]) => {},
+  ready: false,
+};

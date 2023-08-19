@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { MouseCursor } from "../types/mouse";
 
 export type MouseRef = React.MutableRefObject<MouseCursor>;
-type CanvasRef = React.RefObject<HTMLCanvasElement>;
+type CanvasRef = React.RefObject<HTMLCanvasElement | undefined>;
 
 export type ReactMouseEvent = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
 

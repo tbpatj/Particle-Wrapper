@@ -1,20 +1,14 @@
 import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
 import Vector2D from "../classes/Vector";
-import { CanvasPoint } from "../types/types";
+import { AddInputGroupOptions, CanvasPoint } from "../types/types";
 import { shuffle } from "./lists";
-
-export enum QueueSteps {
-  CheckDis = 0,
-  CheckForFurthest = 1,
-  Reset = 2,
-}
 
 export interface ParticleQueue {
   dest: Vector2D;
   color: ColorRGB;
   group: string;
-  step: QueueSteps;
+  teleportParticlesToDest?: boolean;
   lifeSpan?: number;
   size?: number;
   nearestSqrdDis?: number;
@@ -28,16 +22,17 @@ export const updateParticleQueue = (
   groups: { [group: string]: number },
   maxParticles: number,
   groupName: string,
-  queuedAmt: number
+  queuedAmt: number,
+  options?: AddInputGroupOptions
 ) => {
   let particlesQueued = 0;
   for (const group in groups) {
-    particlesQueued += groups[group];
+    if (group !== groupName) particlesQueued += groups[group];
   }
   if (particlesQueued + queuedAmt > maxParticles) {
     queuedAmt = maxParticles - particlesQueued;
   }
-  if (queuedAmt > 300) {
+  if (queuedAmt > 0) {
     const iAmt = points.length / queuedAmt;
     groups[groupName] = queuedAmt;
     for (let i = 0; Math.round(i / iAmt) < queuedAmt; i += iAmt) {
@@ -48,10 +43,14 @@ export const updateParticleQueue = (
       if (index + randomize < 0) randomize = 0;
       const point = points?.[index + randomize];
       particleQueue.push({
-        dest: point.pos,
+        dest: new Vector2D(
+          point.pos.x + Math.random() * 2 - 1,
+          point.pos.y + Math.random() * 2 - 1
+        ),
         color: point.color,
         group: groupName,
-        step: QueueSteps.CheckDis,
+        size: 3,
+        teleportParticlesToDest: options?.teleportParticlesToDest,
       });
     }
     shuffle(particleQueue);
@@ -66,7 +65,6 @@ export const checkParticleAgainstQueueDis = (
   let closestDis = -1;
   let closestIndx = -1;
   for (let i = 0; i < Math.min(20, queue.length); i++) {
-    // const queueItem = queue[i];
     const v1 = new Vector2D(
       p.pos.x - queue[i].dest.x,
       p.pos.y - queue[i].dest.y
@@ -91,6 +89,10 @@ export const assignParticleQueue = (p: Particle, queue: ParticleQueue[]) => {
   if (queue.length > 0) {
     p.dest = queue[0].dest;
     p.toColor = queue[0].color;
+    p.group = queue[0].group;
+    p.size = queue[0].size ?? p.size;
+    if (queue[0].teleportParticlesToDest)
+      p.pos = new Vector2D(p.dest.x, p.dest.y);
     queue.splice(0, 1);
   }
 };
@@ -112,41 +114,3 @@ export const checkQueueEndOfLoop = (
     queue.splice(remove[i] - i, 1);
   }
 };
-
-// export const checkParticleAgainstQueue = (
-//   p: Particle,
-//   pIndx: number,
-//   queue: ParticleQueue[]
-// ) => {
-//   let furthestQueueDistance = -1;
-//   let furthestQueueIndx = -1;
-//   for (let i = 0; i < Math.min(10, queue.length); i++) {
-//     const queueItem = queue[i];
-//     if (queueItem.step === QueueSteps.CheckDis) {
-//       queuedParticleCheckDis(p, pIndx, queueItem);
-//       //   console.log(queueItem);
-//     } else if (queueItem.step === QueueSteps.CheckForFurthest) {
-//       if (
-//         queueItem.nearestSqrdDis &&
-//         queueItem.nearestIndex === pIndx &&
-//         furthestQueueDistance < queueItem.nearestSqrdDis
-//       ) {
-//         furthestQueueDistance = queueItem.nearestSqrdDis;
-//         furthestQueueIndx = i;
-//       } else if (queueItem.nearestIndex === pIndx && queueItem.nearestSqrdDis) {
-//         queueItem.step = QueueSteps.CheckDis;
-//         queueItem.nearestIndex = undefined;
-//         queueItem.nearestSqrdDis = undefined;
-//       }
-//     }
-//   }
-//   const furthestQueue = queue?.[furthestQueueIndx];
-//   if (furthestQueue) {
-//     console.log("assignment", furthestQueueIndx);
-//     p.dest = furthestQueue.dest;
-//     p.toColor = furthestQueue.color;
-//     queue.splice(furthestQueueIndx, 1);
-//   }
-// };
-
-///find the closest particles to the points, and then assign the particle that is the cloesest, but with the greatest distance.

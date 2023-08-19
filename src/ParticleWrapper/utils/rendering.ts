@@ -17,6 +17,8 @@ export const renderOptimizedParticles = (
   canvasHeight: number,
   mouse: MouseCursor,
   queue: ParticleQueue[],
+  groups: { [key: string]: number },
+  removeGroups: { [key: string]: string },
   options: DefaultedWrapperOptions
 ) => {
   let b: Uint8ClampedArray,
@@ -88,7 +90,12 @@ export const renderOptimizedParticles = (
   for (let i = 0; i < particles.length; i++) {
     const p: Particle = particles[i];
     p.updateParticle(mouse, canvasWidth, canvasHeight, options);
-    if (!p.dest) {
+    if (p.group && removeGroups[p.group]) {
+      p.dest = undefined;
+      p.group = undefined;
+      p.size = 0.5;
+    }
+    if (!p.dest && queue.length > 0) {
       // checkParticleAgainstQueue(p, i, queue);
       assignParticleQueue(p, queue);
     }
@@ -102,7 +109,8 @@ export const renderOptimizedParticles = (
       n1 = n;
       n2 = n1;
       // updatePxl(n1, p.color.R, p.color.G, p.color.B, p.color.A);
-      fillCircle(n, p.size, p.color);
+      if (p.size > 0.9) fillCircle(n, p.size, p.color);
+      else updatePxl(n1, p.color.R, p.color.G, p.color.B, p.color.A);
     }
   }
   ctx.putImageData(a, 0, 0);

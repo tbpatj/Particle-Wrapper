@@ -1,30 +1,32 @@
-import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useInitParticles from "../hooks/useInitParticles";
 import {
+  DefaultedWrapperOptions,
   ParticleController,
-  ParticleInputObject,
   WrapperOptions,
 } from "../types/types";
 import { renderOptimizedParticles, runParticleLoop } from "../utils/rendering";
-import {
-  DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES,
-  getOptionsWDefaults,
-} from "../utils/util";
+import { DEFAULT_WRAPPER_OPTIONS } from "../utils/util";
 import Particle from "../classes/Particle";
 import { MouseCursor, initialMouseCursorObject } from "../types/mouse";
 import useMouseCursor from "../hooks/useMouseCursor";
 import { excludeOldMouseEntries } from "../utils/mouse";
 import useFPS from "../hooks/useFPS";
-import { ParticleQueue, checkQueueEndOfLoop } from "../utils/particleQueue";
+import { ParticleQueue } from "../utils/particleQueue";
 
 interface ParticleWrapperProps {
-  controllerRef?: ParticleController;
+  controllerRef?: React.MutableRefObject<ParticleController>;
+  onInitalized?: () => void;
   options?: WrapperOptions;
   // initParticlePointsFunc: (width: number, height: number) => Particle;
 }
 
-const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ options }) => {
-  const canvasRef = createRef<HTMLCanvasElement>();
+const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
+  options,
+  controllerRef,
+  onInitalized,
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>();
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
@@ -32,24 +34,39 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ options }) => {
   const mouseRef = useRef<MouseCursor>(initialMouseCursorObject);
   const particleQueue = useRef<ParticleQueue[]>([]);
   const groups = useRef<{ [group: string]: number }>({});
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const { fpsRef, updateFPS } = useFPS();
+  const removeGroups = useRef<{ [group: string]: string }>({});
+  const particles = useRef<Particle[]>([]);
+  const { updateFPS, renderFPSOnCanvas } = useFPS();
+  const settings: DefaultedWrapperOptions = {
+    ...DEFAULT_WRAPPER_OPTIONS,
+    ...options,
+  };
 
   const { handleMouseMove, handleMouseDown, handleMouseUp } = useMouseCursor(
     mouseRef,
     canvasRef
   );
-
-  const { initScene, initParticles } = useInitParticles({
+  const { addParticleInputs, initParticles } = useInitParticles({
     ctx,
-    canvasWidth,
-    canvasHeight,
+    ww: canvasWidth,
+    wh: canvasHeight,
     particles,
     particleQueue,
     groups,
-    setParticles,
-    input,
+    removeGroups,
+    options: settings,
   });
+
+  useEffect(() => {
+    const test: boolean = controllerRef !== undefined && ctx !== undefined;
+    if (ctx !== undefined && controllerRef) {
+      controllerRef.current.addInputGroup = addParticleInputs;
+      if (!controllerRef.current.ready) {
+        controllerRef.current.ready = true;
+        onInitalized?.();
+      }
+    }
+  }, [addParticleInputs, ctx]);
 
   //particle updating methods
   const loop = useCallback(() => {
@@ -57,46 +74,35 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ options }) => {
     //if we have a canvas element then we can start rendering things
     if (ctx) {
       //if the custom option was set to use the optimized small particles use those particles instead.
-      if (
-        input?.options?.useOptimizedSmallParticles ??
-        DEFAULT_USE_OPTIMIZED_SMALL_PARTICLES
-      ) {
+      if (settings.useOptimizedSmallParticles) {
         renderOptimizedParticles(
           ctx,
-          particles,
+          particles.current,
           canvasWidth,
           canvasHeight,
           mouseRef.current,
           particleQueue.current,
-          getOptionsWDefaults(input?.options)
+          groups.current,
+          removeGroups.current,
+          settings
         );
       } else {
         runParticleLoop(
           ctx,
-          particles,
+          particles.current,
           canvasWidth,
           canvasHeight,
           mouseRef.current,
-          getOptionsWDefaults(input?.options)
+          settings
         );
       }
       // checkQueueEndOfLoop(particles, particleQueue.current);
+      renderFPSOnCanvas(ctx);
+      removeGroups.current = {};
     }
     updateFPS();
-    if (ctx) {
-      ctx.font = "bold " + 16 + "px sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillStyle = "black";
-      //stamp the text onto the canvas
-      ctx.fillText(`${fpsRef.current.fps} FPS`, 10, 30);
-    }
     animationRef.current = requestAnimationFrame(loop);
   }, [ctx, particles]);
-
-  useEffect(() => {
-    initScene();
-  }, [ctx, input]);
-
   //if elements in the animation are updated just reset the animation frame so it loads up the new variables
   useEffect(() => {
     cancelAnimationFrame(animationRef.current);
@@ -105,20 +111,12 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ options }) => {
 
   //when the component first loads up initialize all the dedicated particles
   useEffect(() => {
-    initParticles();
-  }, []);
+    if (particles.current.length === 0 && canvasWidth) {
+      initParticles();
+    }
+  }, [canvasWidth]);
 
   //when the canvas ref updates, update the canvas width and height and also get the ctx reference so we can render to the canvas
-  useEffect(() => {
-    const ctxRef = canvasRef.current?.getContext("2d", {
-      willReadFrequently: true,
-    });
-    if (ctxRef && !ctx) {
-      setCtx(ctxRef);
-      setCanvasWidth(canvasRef.current?.offsetWidth ?? 0);
-      setCanvasHeight(canvasRef.current?.offsetHeight ?? 0);
-    }
-  }, [canvasRef]);
 
   const adjustSize = () => {
     if (canvasRef.current) {
@@ -137,7 +135,15 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({ options }) => {
       onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      ref={canvasRef}
+      ref={(ref) => {
+        if (ref) {
+          setCanvasWidth(ref.offsetWidth ?? 0);
+          setCanvasHeight(ref.offsetHeight ?? 0);
+          const refCtx = ref.getContext("2d");
+          canvasRef.current = ref;
+          if (refCtx) setCtx(refCtx);
+        }
+      }}
       style={{ width: "100%", height: "100%" }}
       width={canvasWidth + "px"}
       height={canvasHeight + "px"}
