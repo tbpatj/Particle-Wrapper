@@ -1,7 +1,11 @@
 import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
 import { MouseCursor } from "../types/mouse";
-import { DefaultedWrapperOptions, WrapperOptions } from "../types/types";
+import {
+  DefaultedWrapperOptions,
+  GroupAction,
+  WrapperOptions,
+} from "../types/types";
 import { ParticleQueue, assignParticleQueue } from "./particleQueue";
 var test = 0;
 let d = 0;
@@ -104,6 +108,7 @@ export const renderOptimizedParticles = (
   queue: ParticleQueue[],
   groups: { [key: string]: number },
   removeGroups: { [key: string]: string },
+  groupActions: { [group: string]: GroupAction },
   options: DefaultedWrapperOptions
 ) => {
   let b: Uint8ClampedArray,
@@ -147,10 +152,21 @@ export const renderOptimizedParticles = (
   for (let i = 0; i < particles.length; i++) {
     const p: Particle = particles[i];
     p.updateParticle(mouse, canvasWidth, canvasHeight, options);
-    if (p.group && removeGroups[p.group]) {
-      p.dest = undefined;
-      if (removeGroups[p.group] !== "reset") p.group = undefined;
-      p.size = 0.5;
+    if (p.group) {
+      //group actions
+      if (groupActions[p.group]) {
+        const groupAction = groupActions[p.group];
+        if (p.dest) {
+          p.dest.x = p.dest.x + (groupAction?.xShift ?? 0);
+          p.dest.y = p.dest.y + (groupAction?.yShift ?? 0);
+        }
+      }
+      //group removal
+      if (removeGroups[p.group]) {
+        p.dest = undefined;
+        if (removeGroups[p.group] !== "reset") p.group = undefined;
+        p.size = 0.5;
+      }
     }
     if (!p.dest && queue.length > 0) {
       // checkParticleAgainstQueue(p, i, queue);

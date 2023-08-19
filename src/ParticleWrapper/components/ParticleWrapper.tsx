@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useInitParticles from "../hooks/useInitParticles";
 import {
   DefaultedWrapperOptions,
+  GroupAction,
   ParticleController,
   WrapperOptions,
 } from "../types/types";
@@ -35,6 +36,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
   const particleQueue = useRef<ParticleQueue[]>([]);
   const groups = useRef<{ [group: string]: number }>({});
   const removeGroups = useRef<{ [group: string]: string }>({});
+  const groupActions = useRef<{ [group: string]: GroupAction }>({});
   const particles = useRef<Particle[]>([]);
   const { updateFPS, renderFPSOnCanvas } = useFPS();
   const settings: DefaultedWrapperOptions = {
@@ -57,10 +59,15 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
     options: settings,
   });
 
+  const createGroupAction = (group: string, action: GroupAction) => {
+    groupActions.current[group] = action;
+  };
+
   useEffect(() => {
     const test: boolean = controllerRef !== undefined && ctx !== undefined;
     if (ctx !== undefined && controllerRef) {
       controllerRef.current.addInputGroup = addParticleInputs;
+      controllerRef.current.createGroupAction = createGroupAction;
       if (!controllerRef.current.ready) {
         controllerRef.current.ready = true;
         onInitalized?.();
@@ -84,6 +91,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
           particleQueue.current,
           groups.current,
           removeGroups.current,
+          groupActions.current,
           settings
         );
       } else {
@@ -99,6 +107,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
       // checkQueueEndOfLoop(particles, particleQueue.current);
       renderFPSOnCanvas(ctx);
       removeGroups.current = {};
+      groupActions.current = {};
     }
     updateFPS();
     animationRef.current = requestAnimationFrame(loop);
@@ -139,7 +148,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
         if (ref) {
           setCanvasWidth(ref.offsetWidth ?? 0);
           setCanvasHeight(ref.offsetHeight ?? 0);
-          const refCtx = ref.getContext("2d");
+          const refCtx = ref.getContext("2d", { willReadFrequently: true });
           canvasRef.current = ref;
           if (refCtx) setCtx(refCtx);
         }

@@ -168,11 +168,25 @@ export type AddInputGroupFunc = (
 export interface ParticleController {
   addParticle: () => void;
   addInputGroup: AddInputGroupFunc;
+  createGroupAction: (group: string, action: GroupAction) => void;
   ready: boolean;
 }
 
 export const initialParticleController: ParticleController = {
   addParticle: () => {},
   addInputGroup: (inputs: ParticleInput[]) => {},
+  createGroupAction: (group: string, action: GroupAction) => {},
   ready: false,
 };
+
+export interface GroupMoveAction {
+  xShift?: number;
+  yShift?: number;
+  xScale?: number;
+  yScale?: number;
+  centerX?: number;
+  centerY?: number;
+  rotDeg?: number;
+}
+
+export type GroupAction = GroupMoveAction;
