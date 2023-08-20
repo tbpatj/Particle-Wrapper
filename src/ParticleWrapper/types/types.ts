@@ -13,7 +13,7 @@ interface BasicParticleInput {
   rotDeg?: number;
   scaleX?: number;
   scaleY?: number;
-  color?: ParticleWrapperGradient | ParticleWrapperColorPattern;
+  color?: ParticleWrapperGradient | ParticleWrapperColorPattern | string;
   filter?: string;
 }
 
@@ -179,7 +179,13 @@ export const initialParticleController: ParticleController = {
   ready: false,
 };
 
+export interface GroupProperties {
+  speed?: number;
+  maxSpeed?: number;
+}
+
 export interface GroupMoveAction {
+  type: "teleport" | "move" | "teleportWDest";
   xShift?: number;
   yShift?: number;
   xScale?: number;
@@ -189,4 +195,7 @@ export interface GroupMoveAction {
   rotDeg?: number;
 }
 
-export type GroupAction = GroupMoveAction;
+export interface GroupAction {
+  action: GroupMoveAction;
+  properties?: GroupProperties;
+}

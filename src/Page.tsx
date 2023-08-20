@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import ParticleWrapper from "./ParticleWrapper/components/ParticleWrapper";
 import {
   ParticleController,
-  ParticleImageInput,
   ParticleTextInput,
   WrapperOptions,
   initialParticleController,
@@ -19,6 +18,15 @@ const particleWrapperOptions = {
   edgeInteractionType: "bounce",
   mouseClickInteractionType: "push",
 } as WrapperOptions;
+
+const colors = [
+  "#8ecae6",
+  "#219ebc",
+  "#023047",
+  "#ffb703",
+  "#fb8500",
+  "#9EE493",
+];
 
 const images: MyImage[] = [
   { src: "/person.png" },
@@ -66,6 +74,7 @@ const Page: React.FC = () => {
             text: currentWord,
             // scaleX: 3,
             // scaleY: 3,
+            color: colors[currentIndex],
             align: "left",
             xPos: "5%",
             yPos: "50%",
@@ -75,9 +84,19 @@ const Page: React.FC = () => {
         1000
       );
       for (let i = 0; i < words.length; i++) {
-        controllerRef.current.createGroupAction(words[i], {
-          yShift: -100,
-        });
+        if (i === currentIndex) {
+          controllerRef.current.createGroupAction(words[i], {
+            action: { type: "teleportWDest", yShift: 1300 },
+          });
+        } else if (currentIndex === 0) {
+          controllerRef.current.createGroupAction(words[i], {
+            action: { type: "move", yShift: -200 },
+          });
+        } else {
+          controllerRef.current.createGroupAction(words[i], {
+            action: { type: "move", yShift: -100 },
+          });
+        }
       }
     }
   }, [currentWord]);
@@ -85,7 +104,14 @@ const Page: React.FC = () => {
   const onInitalized = () => {
     startWordTimer();
     controllerRef.current.addInputGroup(
-      [{ text: currentWord, xPos: "5%", align: "left" } as ParticleTextInput],
+      [
+        {
+          text: currentWord,
+          xPos: "5%",
+          align: "left",
+          color: colors[0],
+        } as ParticleTextInput,
+      ],
       "Hi",
       1000
       // { teleportParticlesToDest: true }

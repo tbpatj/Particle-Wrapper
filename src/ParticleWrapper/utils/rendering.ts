@@ -156,9 +156,18 @@ export const renderOptimizedParticles = (
       //group actions
       if (groupActions[p.group]) {
         const groupAction = groupActions[p.group];
-        if (p.dest) {
-          p.dest.x = p.dest.x + (groupAction?.xShift ?? 0);
-          p.dest.y = p.dest.y + (groupAction?.yShift ?? 0);
+        if (groupAction.action.type === "move") {
+          if (p.dest) {
+            p.dest.x = p.dest.x + (groupAction.action?.xShift ?? 0);
+            p.dest.y = p.dest.y + (groupAction.action?.yShift ?? 0);
+          }
+        } else if (groupAction.action.type === "teleport" || "teleportWDest") {
+          p.pos.x = p.pos.x + (groupAction.action?.xShift ?? 0);
+          p.pos.y = p.pos.y + (groupAction.action?.yShift ?? 0);
+          if (groupAction.action.type === "teleportWDest" && p.dest) {
+            p.dest.x = p.dest.x + (groupAction.action?.xShift ?? 0);
+            p.dest.y = p.dest.y + (groupAction.action?.yShift ?? 0);
+          }
         }
       }
       //group removal

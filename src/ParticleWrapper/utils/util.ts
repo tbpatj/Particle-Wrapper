@@ -241,6 +241,8 @@ const getFillStyle = (ctx: CanvasRenderingContext2D, input: ParticleInput) => {
         ctx,
         input.color as ParticleWrapperLinearGradient
       );
+  } else if (typeof input.color === "string") {
+    ctx.fillStyle = input.color;
   } else {
     ctx.fillStyle = `rgba(${Math.round(Math.random() * 255)},${Math.round(
       Math.random() * 255

@@ -105,7 +105,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
         );
       }
       // checkQueueEndOfLoop(particles, particleQueue.current);
-      renderFPSOnCanvas(ctx);
+      // renderFPSOnCanvas(ctx);
       removeGroups.current = {};
       groupActions.current = {};
     }
