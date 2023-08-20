@@ -8,6 +8,7 @@ export interface UseWordIntervalProps {
 
 export interface UseWordInterval {
   currentWord: string;
+  index: number;
   destroyTimeout: () => void;
   startWordTimer: () => void;
 }
@@ -60,7 +61,7 @@ const useWordInterval: (props: UseWordIntervalProps) => UseWordInterval = ({
     return () => destroyTimeout();
   }, []);
 
-  return { currentWord, destroyTimeout, startWordTimer };
+  return { currentWord, index, destroyTimeout, startWordTimer };
 };
 
 export default useWordInterval;

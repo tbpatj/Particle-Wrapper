@@ -55,7 +55,6 @@ export const updateParticleQueue = (
         teleportParticlesToDest: options?.teleportParticlesToDest,
       });
     }
-    shuffle(newQueue);
   }
   return newQueue;
 };

@@ -69,11 +69,11 @@ export const createParticlesList = (
 ) => {
   const particles = [];
   for (let i = 0; i < particleAmount; i++) {
-    const randX = Math.random() * ww;
-    const randY = Math.random() * wh;
+    const randX = Math.random() * 2 + (3 * ww) / 4;
+    const randY = Math.random() * 2 + wh / 2;
     const randVelX = Math.random() * 1 - 0.5;
     const randVelY = Math.random() * 1 - 0.5;
-    const size = Math.random() * 0 + 0.5;
+    const size = Math.random() * 0 + 1;
     particles.push(
       new Particle({ x: randX, y: randY, xVel: randVelX, yVel: randVelY, size })
     );
@@ -255,20 +255,20 @@ const getRenderPos = (
   ihw?: number,
   ihh?: number
 ) => {
-  let xOffset = ww / 2 - (ihw ?? 0);
+  let xOffset = ww / 2 + (ihw ?? 0);
   if (input?.xPos && input?.xPos?.includes("%")) {
     const percent = parseFloat(input?.xPos?.split("%")[0]);
-    if (!isNaN(percent)) xOffset = (ww + (ihw ?? 0)) * (percent / 100);
+    if (!isNaN(percent)) xOffset = (ww - (ihw ?? 0) * 2) * (percent / 100);
   } else if (input?.xPos) {
-    const pxl = parseFloat(input?.xPos);
+    const pxl = parseFloat(input?.xPos) - (ihw ?? 0);
     if (!isNaN(pxl)) xOffset = pxl;
   }
-  let yOffset = wh / 2 - (ihh ?? 0);
+  let yOffset = wh / 2 - (ihh ?? 0) * 2;
   if (input?.yPos?.includes("%")) {
     const percent = parseFloat(input?.yPos?.split("%")[0]);
-    if (!isNaN(percent)) yOffset = (wh + (ihh ?? 0)) * (percent / 100);
+    if (!isNaN(percent)) yOffset = (wh - (ihh ?? 0) * 2) * (percent / 100);
   } else if (input?.yPos) {
-    const pxl = parseFloat(input?.yPos);
+    const pxl = parseFloat(input?.yPos) - (ihh ?? 0);
     if (!isNaN(pxl)) yOffset = pxl;
   }
   return { xOffset, yOffset };

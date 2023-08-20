@@ -92,9 +92,9 @@ class Particle {
       options.edgeInteractionType,
       options.edgeRestitution
     );
-    if (velMag > 0.3) {
-      this.vel.x *= 0.995;
-      this.vel.y *= 0.995;
+    if (velMag > 0.04) {
+      this.vel.x *= 0.98;
+      this.vel.y *= 0.98;
     }
     if (this.dest) {
       dx = this.dest.x - this.pos.x;

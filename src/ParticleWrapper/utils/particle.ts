@@ -18,7 +18,7 @@ export const edgeDetection = (
   edgeInteractionType: EdgeInteractionMethods,
   edgeRestitution: number
 ) => {
-  if (edgeInteractionType !== "none") {
+  if (edgeInteractionType !== "none" && !p.group) {
     const isPastRightEdge = p.pos.x > w;
     const isPastLeftEdge = p.pos.x < 0;
     const isPastUpperEdge = p.pos.y > h;

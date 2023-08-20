@@ -90,8 +90,8 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
             options.resolutionPercent
           );
 
-          if (options.shuffleUponRerender)
-            particles.current = shuffle(particles.current);
+          // if (options.shuffleUponRerender)
+          //   particles.current = shuffle(particles.current);
           if (!options.useParticleQueue) {
             //choose which mapping method we want to use and map the particles to the points
             if (options.mapParticlesToClosestPoint) {
@@ -120,6 +120,7 @@ const useInitParticles: (props: UseInitParticlesProps) => UseInitParticle = ({
               prtclCount,
               inputOptions
             );
+            if (options.shuffleUponRerender) shuffle(newQueue);
             particleQueue.current = particleQueue.current.concat(newQueue);
             // console.log("new queue", particleQueue.current);
           }

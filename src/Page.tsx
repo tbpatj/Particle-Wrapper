@@ -15,7 +15,7 @@ import useImageLoader, {
 const particleWrapperOptions = {
   useOptimizedSmallParticles: true,
   mapParticlesToClosestPoint: false,
-  prtcleCnt: 5000,
+  prtcleCnt: 8000,
   edgeInteractionType: "bounce",
   mouseClickInteractionType: "push",
 } as WrapperOptions;
@@ -29,14 +29,14 @@ const images: MyImage[] = [
 ];
 
 const words = [
-  "1",
+  "Hi",
   "My Name Is",
   "Timothy Luebke",
-  "1,",
-  "Computer Engineer,",
-  "Husband,",
+  "Software Developer,",
+  "Web Developer,",
+  "Web Designer",
 ];
-const time = [1300, 2000, 2500, 2000, 2000];
+const time = [1300, 1300, 2500, 2000, 2000];
 
 const Page: React.FC = () => {
   const controllerRef = useRef<ParticleController>(initialParticleController);
@@ -46,7 +46,11 @@ const Page: React.FC = () => {
    * create particle actions, like how I can now add a image through the controller. Make it so I can move a group up 50, or rotate a group 30 deg, or create an action to blow particles away breifly
    * create interaction creator in the particle controller. a way to add forces throughout like wind or orbits
    */
-  const { currentWord, startWordTimer } = useWordInterval({
+  const {
+    currentWord,
+    index: currentIndex,
+    startWordTimer,
+  } = useWordInterval({
     words,
     time,
     startOnMount: false,
@@ -56,37 +60,24 @@ const Page: React.FC = () => {
   useEffect(() => {
     console.log(currentWord);
     if (controllerRef.current.ready) {
-      const indx = parseInt(currentWord);
-      if (indx < loadedImages.length && !isNaN(indx)) {
-        controllerRef.current.addInputGroup(
-          [
-            {
-              image: loadedImages[indx].image,
-              scaleX: 3,
-              scaleY: 3,
-              align: "left",
-              xPos: "100",
-            } as ParticleImageInput,
-          ],
-          "start",
-          2000
-        );
-      } else {
-        controllerRef.current.addInputGroup(
-          [
-            {
-              text: currentWord,
-              // scaleX: 3,
-              // scaleY: 3,
-              fontSize: "3vw",
-              align: "left",
-              xPos: "10%",
-              yPos: "50%",
-            } as ParticleTextInput,
-          ],
-          "start",
-          2000
-        );
+      controllerRef.current.addInputGroup(
+        [
+          {
+            text: currentWord,
+            // scaleX: 3,
+            // scaleY: 3,
+            align: "left",
+            xPos: "5%",
+            yPos: "50%",
+          } as ParticleTextInput,
+        ],
+        currentWord,
+        1000
+      );
+      for (let i = 0; i < words.length; i++) {
+        controllerRef.current.createGroupAction(words[i], {
+          yShift: -100,
+        });
       }
     }
   }, [currentWord]);
@@ -94,16 +85,10 @@ const Page: React.FC = () => {
   const onInitalized = () => {
     startWordTimer();
     controllerRef.current.addInputGroup(
-      [{ text: currentWord, xPos: "10%" } as ParticleTextInput],
-      "start",
-      2000,
-      { teleportParticlesToDest: true }
-    );
-    controllerRef.current.addInputGroup(
-      [{ text: currentWord, xPos: "80%" } as ParticleTextInput],
-      "test",
-      2000,
-      { teleportParticlesToDest: true }
+      [{ text: currentWord, xPos: "5%", align: "left" } as ParticleTextInput],
+      "Hi",
+      1000
+      // { teleportParticlesToDest: true }
     );
   };
   return (
@@ -113,6 +98,9 @@ const Page: React.FC = () => {
         options={particleWrapperOptions}
         onInitalized={onInitalized}
       />
+      <div
+        style={{ backgroundColor: "#000000", width: "50%", height: "50px" }}
+      ></div>
     </>
   );
 };
