@@ -65,6 +65,17 @@ const useMouseCursor: (
       } as MouseCursor;
     }
   };
+
+  const handleScrolling = (e: any) => {
+    ref.current.scrollDY = ref.current.scrollPosY - window.pageYOffset;
+    ref.current.scrollPosY = window.pageYOffset;
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScrolling);
+    return () => window.removeEventListener("scroll", handleScrolling);
+  }, []);
+
   useEffect(() => {
     if (ref.current.leftClick === true)
       ref.current = { ...ref.current, leftClick: false };

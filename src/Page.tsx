@@ -15,7 +15,7 @@ const particleWrapperOptions = {
   useOptimizedSmallParticles: true,
   mapParticlesToClosestPoint: false,
   prtcleCnt: 8000,
-  edgeInteractionType: "bounce",
+  edgeInteractionType: "teleport",
   mouseClickInteractionType: "push",
 } as WrapperOptions;
 
@@ -119,14 +119,21 @@ const Page: React.FC = () => {
   };
   return (
     <>
-      <ParticleWrapper
-        controllerRef={controllerRef}
-        options={particleWrapperOptions}
-        onInitalized={onInitalized}
-      />
       <div
-        style={{ backgroundColor: "#000000", width: "50%", height: "50px" }}
-      ></div>
+        style={{
+          width: "100%",
+          height: "100vh",
+          position: "fixed",
+          top: "0px",
+        }}
+      >
+        <ParticleWrapper
+          controllerRef={controllerRef}
+          options={particleWrapperOptions}
+          onInitalized={onInitalized}
+        />
+      </div>
+      <div style={{ width: "50%", height: "200vh" }}></div>
     </>
   );
 };

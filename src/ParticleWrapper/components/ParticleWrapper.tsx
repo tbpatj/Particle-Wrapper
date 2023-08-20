@@ -108,6 +108,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
       // renderFPSOnCanvas(ctx);
       removeGroups.current = {};
       groupActions.current = {};
+      mouseRef.current.scrollDY = 0;
     }
     updateFPS();
     animationRef.current = requestAnimationFrame(loop);

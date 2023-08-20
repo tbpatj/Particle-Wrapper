@@ -15,6 +15,7 @@ export interface MouseCursor {
   nDy: number;
   scrollDX: number;
   scrollDY: number;
+  scrollPosY: number;
   leftMouseDown: boolean;
   leftClick: boolean;
   rightMouseDown: boolean;
@@ -35,6 +36,7 @@ export const initialMouseCursorObject = {
   nDy: 0,
   scrollDX: 0,
   scrollDY: 0,
+  scrollPosY: 0,
   leftMouseDown: false,
   leftClick: false,
   rightMouseDown: false,
