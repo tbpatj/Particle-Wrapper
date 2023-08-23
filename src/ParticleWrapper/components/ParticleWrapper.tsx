@@ -4,6 +4,7 @@ import {
   DefaultedWrapperOptions,
   GroupAction,
   ParticleController,
+  ParticleGroups,
   WrapperOptions,
 } from "../types/types";
 import { renderOptimizedParticles, runParticleLoop } from "../utils/rendering";
@@ -34,7 +35,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
   const animationRef = useRef(-1);
   const mouseRef = useRef<MouseCursor>(initialMouseCursorObject);
   const particleQueue = useRef<ParticleQueue[]>([]);
-  const groups = useRef<{ [group: string]: number }>({});
+  const groups = useRef<ParticleGroups>({});
   const removeGroups = useRef<{ [group: string]: string }>({});
   const groupActions = useRef<{ [group: string]: GroupAction }>({});
   const particles = useRef<Particle[]>([]);

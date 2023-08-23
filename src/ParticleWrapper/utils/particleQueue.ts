@@ -1,7 +1,11 @@
 import ColorRGB from "../classes/ColorRGB";
 import Particle from "../classes/Particle";
 import Vector2D from "../classes/Vector";
-import { AddInputGroupOptions, CanvasPoint } from "../types/types";
+import {
+  AddInputGroupOptions,
+  CanvasPoint,
+  ParticleGroups,
+} from "../types/types";
 import { shuffle } from "./lists";
 
 export interface ParticleQueue {
@@ -19,7 +23,7 @@ export interface ParticleQueue {
 export const updateParticleQueue = (
   points: CanvasPoint[],
   particleQueue: ParticleQueue[],
-  groups: { [group: string]: number },
+  groups: ParticleGroups,
   maxParticles: number,
   groupName: string,
   queuedAmt: number,
@@ -28,14 +32,14 @@ export const updateParticleQueue = (
   const newQueue: ParticleQueue[] = [];
   let particlesQueued = 0;
   for (const group in groups) {
-    if (group !== groupName) particlesQueued += groups[group];
+    if (group !== groupName) particlesQueued += groups[group].particles;
   }
   if (particlesQueued + queuedAmt > maxParticles) {
     queuedAmt = maxParticles - particlesQueued;
   }
   if (queuedAmt > 0) {
     const iAmt = points.length / queuedAmt;
-    groups[groupName] = queuedAmt;
+    groups[groupName] = { particles: queuedAmt };
     for (let i = 0; Math.round(i / iAmt) < queuedAmt; i += iAmt) {
       const index = Math.round(i);
       let randomize = Math.round(Math.random() * (iAmt - 1));

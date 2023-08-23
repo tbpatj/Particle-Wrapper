@@ -100,6 +100,8 @@ export type MouseInteractionTypes =
   | "explode"
   | "push";
 
+export type ScrollInteractionTypes = "scrollY" | "scrollX" | "scroll" | "none";
+
 export interface WrapperOptions {
   /** what percent the wrapper scans an "image" and returns back to be processed to assign particles to */
   resolutionPercent?: number;
@@ -131,6 +133,8 @@ export interface WrapperOptions {
   edgeRestitution?: number;
   /** use particle queue */
   useParticleQueue?: boolean;
+  /** scroll type for the particles */
+  particleScrollType?: ScrollInteractionTypes;
 }
 
 export interface DefaultedWrapperOptions {
@@ -150,6 +154,7 @@ export interface DefaultedWrapperOptions {
   edgeInteractionType: EdgeInteractionMethods;
   edgeRestitution: number;
   useParticleQueue: boolean;
+  particleScrollType: ScrollInteractionTypes;
 }
 
 export type ParticleInput = ParticleImageInput | ParticleTextInput;
@@ -194,6 +199,13 @@ export interface GroupMoveAction {
   centerY?: number;
   rotDeg?: number;
 }
+
+export interface ParticleGroup {
+  particles: number;
+  scrollType?: ScrollInteractionTypes;
+}
+
+export type ParticleGroups = { [group: string]: ParticleGroup };
 
 export interface GroupAction {
   action: GroupMoveAction;

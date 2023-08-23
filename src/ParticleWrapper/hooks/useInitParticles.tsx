@@ -3,6 +3,7 @@ import {
   AddInputGroupFunc,
   AddInputGroupOptions,
   DefaultedWrapperOptions,
+  ParticleGroups,
   ParticleImageInput,
   ParticleInput,
   ParticleTextInput,
@@ -24,7 +25,7 @@ interface UseInitParticlesProps {
   wh: number;
   particles: React.MutableRefObject<Particle[]>;
   particleQueue: React.MutableRefObject<ParticleQueue[]>;
-  groups: React.MutableRefObject<{ [group: string]: number }>;
+  groups: React.MutableRefObject<ParticleGroups>;
   removeGroups: React.MutableRefObject<{ [group: string]: string }>;
   options: DefaultedWrapperOptions;
 }

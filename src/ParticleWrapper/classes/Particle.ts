@@ -1,5 +1,5 @@
 import { MouseCursor } from "../types/mouse";
-import { DefaultedWrapperOptions } from "../types/types";
+import { DefaultedWrapperOptions, ParticleGroup } from "../types/types";
 import { edgeDetection, mouseCollision } from "../utils/particle";
 import ColorRGB from "./ColorRGB";
 import Vector2D from "./Vector";
@@ -78,7 +78,8 @@ class Particle {
     mouse: MouseCursor,
     canvasWidth: number,
     canvasHeight: number,
-    options: DefaultedWrapperOptions
+    options: DefaultedWrapperOptions,
+    group?: ParticleGroup
   ) => {
     this.pos.selfAdd(this.vel);
     const velMag = this.vel.x * this.vel.x + this.vel.y * this.vel.y;
@@ -95,6 +96,19 @@ class Particle {
     if (velMag > 0.04) {
       this.vel.x *= 0.98;
       this.vel.y *= 0.98;
+    }
+    if (group) {
+      if (
+        (group.scrollType && group.scrollType === "scrollY") ||
+        group.scrollType === "scroll"
+      )
+        this.pos.y += mouse.scrollDY;
+    } else {
+      if (
+        options.particleScrollType === "scrollY" ||
+        options.particleScrollType === "scroll"
+      )
+        this.pos.y += mouse.scrollDY;
     }
     if (this.dest) {
       dx = this.dest.x - this.pos.x;

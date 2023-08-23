@@ -4,6 +4,7 @@ import { MouseCursor } from "../types/mouse";
 import {
   DefaultedWrapperOptions,
   GroupAction,
+  ParticleGroups,
   WrapperOptions,
 } from "../types/types";
 import { ParticleQueue, assignParticleQueue } from "./particleQueue";
@@ -106,7 +107,7 @@ export const renderOptimizedParticles = (
   canvasHeight: number,
   mouse: MouseCursor,
   queue: ParticleQueue[],
-  groups: { [key: string]: number },
+  groups: ParticleGroups,
   removeGroups: { [key: string]: string },
   groupActions: { [group: string]: GroupAction },
   options: DefaultedWrapperOptions
@@ -151,7 +152,13 @@ export const renderOptimizedParticles = (
   //iterate through the particles and display and update each particle
   for (let i = 0; i < particles.length; i++) {
     const p: Particle = particles[i];
-    p.updateParticle(mouse, canvasWidth, canvasHeight, options);
+    p.updateParticle(
+      mouse,
+      canvasWidth,
+      canvasHeight,
+      options,
+      p.group ? groups[p.group] : undefined
+    );
     if (p.group) {
       //group actions
       if (groupActions[p.group]) {

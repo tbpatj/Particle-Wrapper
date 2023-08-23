@@ -35,6 +35,7 @@ export const DEFAULT_MOUSE_CLICK_INTERACTION_FIELD_INTENSITY = 0.008;
 export const DEFAULT_EDGE_INTERACTION_TYPE: EdgeInteractionMethods = "teleport";
 export const DEFAULT_EDGE_RESTITUTION = 0.8;
 export const DEFAULT_USE_PARTICLE_QUEUE = true;
+export const DEFAULT_PARTICLE_SCROLL_TYPE = "scrollY";
 
 export const DEFAULT_WRAPPER_OPTIONS: DefaultedWrapperOptions = {
   resolutionPercent: DEFAULT_RESOLUTION_PERCENT,
@@ -55,6 +56,7 @@ export const DEFAULT_WRAPPER_OPTIONS: DefaultedWrapperOptions = {
   mouseClickInteractionType: DEFAULT_MOUSE_CLICK_INTERACTION_TYPE,
   edgeRestitution: DEFAULT_EDGE_RESTITUTION,
   useParticleQueue: DEFAULT_USE_PARTICLE_QUEUE,
+  particleScrollType: DEFAULT_PARTICLE_SCROLL_TYPE,
 };
 
 export const getOptionsWDefaults = (options: WrapperOptions | undefined) => {
