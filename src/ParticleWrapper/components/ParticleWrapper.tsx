@@ -15,6 +15,8 @@ import useMouseCursor from "../hooks/useMouseCursor";
 import { excludeOldMouseEntries } from "../utils/mouse";
 import useFPS from "../hooks/useFPS";
 import { ParticleQueue } from "../utils/particleQueue";
+import { getWebGLContext, glLoop, initializeGL } from "../utils/webglRendering";
+import { GLDeps } from "../webgl/types";
 
 interface ParticleWrapperProps {
   controllerRef?: React.MutableRefObject<ParticleController>;
@@ -30,6 +32,11 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>();
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+  const [gl, setGL] = useState<WebGLRenderingContext>();
+  const glDeps = useRef<GLDeps>();
+  const [renderingType, setRenderingType] = useState<"none" | "gl" | "ctx">(
+    "none"
+  );
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
   const animationRef = useRef(-1);
@@ -39,7 +46,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
   const removeGroups = useRef<{ [group: string]: string }>({});
   const groupActions = useRef<{ [group: string]: GroupAction }>({});
   const particles = useRef<Particle[]>([]);
-  const { updateFPS, renderFPSOnCanvas } = useFPS();
+  const { updateFPS, renderFPSOnCanvas, fpsRef } = useFPS();
   const settings: DefaultedWrapperOptions = {
     ...DEFAULT_WRAPPER_OPTIONS,
     ...options,
@@ -80,7 +87,7 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
   const loop = useCallback(() => {
     excludeOldMouseEntries(mouseRef);
     //if we have a canvas element then we can start rendering things
-    if (ctx) {
+    if (ctx && renderingType === "ctx") {
       //if the custom option was set to use the optimized small particles use those particles instead.
       if (settings.useOptimizedSmallParticles) {
         renderOptimizedParticles(
@@ -107,18 +114,31 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
       }
       // checkQueueEndOfLoop(particles, particleQueue.current);
       // renderFPSOnCanvas(ctx);
-      removeGroups.current = {};
-      groupActions.current = {};
-      mouseRef.current.scrollDY = 0;
+    } else if (gl && renderingType === "gl" && glDeps.current) {
+      glLoop(
+        gl,
+        glDeps.current,
+        particles.current,
+        mouseRef.current,
+        canvasWidth,
+        canvasHeight,
+        settings,
+        groups.current
+      );
     }
+    // console.clear();
+    console.log(fpsRef.current.fps);
+    removeGroups.current = {};
+    groupActions.current = {};
+    mouseRef.current.scrollDY = 0;
     updateFPS();
     animationRef.current = requestAnimationFrame(loop);
-  }, [ctx, particles]);
+  }, [ctx, particles, gl]);
   //if elements in the animation are updated just reset the animation frame so it loads up the new variables
   useEffect(() => {
     cancelAnimationFrame(animationRef.current);
     loop();
-  }, [particles, ctx]);
+  }, [particles, ctx, gl]);
 
   //when the component first loads up initialize all the dedicated particles
   useEffect(() => {
@@ -142,23 +162,48 @@ const ParticleWrapper: React.FC<ParticleWrapperProps> = ({
   }, [canvasRef]);
 
   return (
-    <canvas
-      onMouseMove={handleMouseMove}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      ref={(ref) => {
-        if (ref) {
-          setCanvasWidth(ref.offsetWidth ?? 0);
-          setCanvasHeight(ref.offsetHeight ?? 0);
-          const refCtx = ref.getContext("2d", { willReadFrequently: true });
-          canvasRef.current = ref;
-          if (refCtx) setCtx(refCtx);
-        }
-      }}
-      style={{ width: "100%", height: "100%" }}
-      width={canvasWidth + "px"}
-      height={canvasHeight + "px"}
-    />
+    <>
+      <canvas
+        onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        ref={(ref) => {
+          if (ref) {
+            const gl = getWebGLContext(
+              ref,
+              ref.offsetWidth ?? 0,
+              ref.offsetHeight ?? 0
+            );
+            if (gl) {
+              const deps = initializeGL(gl, settings);
+              if (deps) {
+                setCanvasWidth(ref.offsetWidth ?? 0);
+                setCanvasHeight(ref.offsetHeight ?? 0);
+                // if (deps.ext) {
+                glDeps.current = deps;
+                setGL(gl);
+                setRenderingType("gl");
+                canvasRef.current = ref;
+                return;
+              }
+              // }
+            }
+            //continue with context2D
+            setCanvasWidth(ref.offsetWidth ?? 0);
+            setCanvasHeight(ref.offsetHeight ?? 0);
+            const refCtx = ref.getContext("2d", { willReadFrequently: true });
+            canvasRef.current = ref;
+            if (refCtx) {
+              setRenderingType("ctx");
+              setCtx(refCtx);
+            }
+          }
+        }}
+        style={{ width: "100%", height: "100%" }}
+        width={canvasWidth + "px"}
+        height={canvasHeight + "px"}
+      />
+    </>
   );
 };
 
